@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bolo Khata</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fbf7f0; --card: #ffffff; --ink: #1d1a16; --muted: #6f675c; --line: #ebe3d6;
+    --brand: #e0661b; --brand-ink: #ffffff; --due: #c0392b; --paid: #1e8449; --soft: #fff1e6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #17140f; --card: #221e18; --ink: #f3ede4; --muted: #a89e90; --line: #3a332a;
+      --brand: #ff8a3d; --brand-ink: #1a1007; --due: #ff7b6b; --paid: #5fd38a; --soft: #2d2218;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font-family: Inter, "Noto Sans Devanagari", system-ui, sans-serif; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 20px 16px 60px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  h1 { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+  h1 span { color: var(--brand); }
+  .sub { color: var(--muted); margin: 4px 0 0; font-size: 14px; }
+  .badge { font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+  .badge.live { color: var(--paid); border-color: var(--paid); }
+  .grid { display: grid; grid-template-columns: 1fr 1.3fr; gap: 16px; margin-top: 18px; }
+  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
+  .card h2 { margin: 0 0 12px; font-size: 16px; }
+  .mic { width: 132px; height: 132px; border-radius: 50%; border: none; cursor: pointer; display: block; margin: 8px auto 10px;
+         background: var(--brand); color: var(--brand-ink); font-size: 46px; box-shadow: 0 8px 24px rgba(224,102,27,.35); transition: transform .1s; }
+  .mic:active { transform: scale(.97); }
+  .mic.rec { animation: pulse 1.1s infinite; background: var(--due); }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(192,57,43,.5);} 100% { box-shadow: 0 0 0 26px rgba(192,57,43,0);} }
+  .hint { text-align: center; color: var(--muted); font-size: 13px; min-height: 18px; }
+  .row { display: flex; gap: 8px; margin-top: 14px; }
+  input, select { font: inherit; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); min-width: 0; }
+  input.grow { flex: 1; }
+  button.btn { font: inherit; font-weight: 600; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--brand); background: var(--brand); color: var(--brand-ink); cursor: pointer; white-space: nowrap; }
+  button.ghost { background: transparent; color: var(--brand); }
+  button:disabled { opacity: .5; cursor: wait; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .chip { font-size: 12px; padding: 5px 9px; border-radius: 999px; background: var(--soft); border: 1px solid var(--line); cursor: pointer; color: var(--ink); }
+  .result { margin-top: 14px; padding: 12px; border-radius: 12px; background: var(--soft); font-size: 14px; display: none; }
+  .result .said { color: var(--muted); font-size: 13px; }
+  .result .conf { font-weight: 600; margin-top: 6px; }
+  .total { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+  .total b { font-size: 26px; color: var(--due); }
+  .cust { border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-top: 10px; }
+  .cust-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .name { font-weight: 700; font-size: 16px; }
+  .bal { font-weight: 800; }
+  .bal.due { color: var(--due); } .bal.ok { color: var(--paid); }
+  .tx { font-size: 13px; color: var(--muted); margin: 6px 0 0; padding-left: 16px; }
+  .actions { display: flex; gap: 6px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+  .actions select { padding: 7px 8px; font-size: 13px; }
+  .actions .btn { padding: 7px 10px; font-size: 13px; }
+  .reminder { margin-top: 10px; padding: 10px; border-radius: 10px; background: var(--soft); font-size: 14px; display: none; }
+  .reminder audio { width: 100%; margin-top: 8px; }
+  .reminder a { color: var(--brand); font-size: 13px; margin-right: 12px; }
+  .empty { color: var(--muted); font-size: 14px; text-align: center; padding: 24px 0; }
+  .flow { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px; font-size: 12px; color: var(--muted); }
+  .flow span { border: 1px dashed var(--line); padding: 4px 8px; border-radius: 8px; }
+  .err { color: var(--due); }
+  footer { margin-top: 24px; color: var(--muted); font-size: 12px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Bolo <span>Khata</span> · बोलो खाता</h1>
+      <p class="sub">Speak your udhaar. We keep the khata and send polite reminders in your customer's language.</p>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <input id="shop" value="Sharma Kirana Store" title="Shop name" style="width:190px">
+      <span id="mode" class="badge">…</span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <section class="card">
+      <h2>1 · Bolo (speak an entry)</h2>
+      <button id="mic" class="mic" title="Tap to record, tap again to stop">🎙️</button>
+      <div id="hint" class="hint">Tap and say: “Ramesh ne 200 ka atta udhaar liya”</div>
+      <div class="row">
+        <input id="txt" class="grow" placeholder="…or type it in any language">
+        <button id="send" class="btn">Add</button>
+      </div>
+      <div class="chips" id="chips"></div>
+      <div id="result" class="result"></div>
+      <div class="flow">
+        <span>🎙️ Saaras v3 · speech→text</span><span>🧠 Sarvam-105B · text→ledger</span><span>✍️ Sarvam-105B · reminder</span><span>🔊 Bulbul v3 · voice note</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="total"><h2 style="margin:0">2 · Khata (ledger)</h2><div>Total due <b id="total">₹0</b></div></div>
+      <div id="ledger"></div>
+      <div class="row" style="justify-content:flex-end"><button id="clear" class="btn ghost">Clear khata</button></div>
+    </section>
+  </div>
+  <footer>Ledger is stored only in this browser. Built with Sarvam AI APIs.</footer>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const LS = 'bolo-khata-v1';
+let state = load();
+let LANGS = {"hi-IN":"Hindi"};
+const SAMPLES = [
+  "Ramesh ne 200 ka atta aur 50 ka tel udhaar liya",
+  "सुनीता ने 500 रुपये वापस दिए",
+  "Kumar 350 rupees ku arisi vaanginaar, credit la ezhudhu",
+  "Fatima took milk and bread for 120 on credit",
+];
+
+function load() { try { return JSON.parse(localStorage.getItem(LS)) || { customers: {} }; } catch { return { customers: {} }; } }
+function save() { try { localStorage.setItem(LS, JSON.stringify(state)); } catch {} }
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function rupee(n) { return '₹' + Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }); }
+
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.detail || ('HTTP ' + r.status));
+  return j;
+}
+
+async function status() {
+  try {
+    const s = await api('/api/status');
+    LANGS = s.languages;
+    const m = $('#mode');
+    m.textContent = s.mock ? 'DEMO MODE (no API calls)' : 'LIVE · Sarvam AI';
+    m.className = 'badge' + (s.mock ? '' : ' live');
+    render();
+  } catch (e) { $('#mode').textContent = 'server offline'; }
+}
+
+function balance(c) { return c.tx.reduce((b, t) => b + (t.type === 'credit' ? t.amount : -t.amount), 0); }
+
+function applyEntries(entries, langCode) {
+  for (const e of entries) {
+    const key = e.customer.toLowerCase();
+    const c = state.customers[key] ||= { name: e.customer, lang: langCode || 'hi-IN', tx: [] };
+    c.tx.push({ type: e.type, amount: e.amount, items: e.items, at: new Date().toISOString() });
+  }
+  save(); render();
+}
+
+function showResult(j) {
+  const box = $('#result');
+  box.style.display = 'block';
+  const list = (j.entries || []).map(e =>
+    `<li>${esc(e.customer)} — <b>${e.type === 'credit' ? 'udhaar' : 'paid'}</b> ${rupee(e.amount)}${e.items ? ' (' + esc(e.items) + ')' : ''}</li>`).join('');
+  box.innerHTML = `<div class="said">Heard${j.language_code ? ' [' + esc(j.language_code) + ']' : ''}: “${esc(j.transcript)}”</div>
+    <div class="conf">${esc(j.confirmation)}</div>${list ? '<ul style="margin:6px 0 0;padding-left:18px">' + list + '</ul>' : ''}`;
+}
+
+function showError(e) { const box = $('#result'); box.style.display = 'block'; box.innerHTML = `<span class="err">⚠️ ${esc(e.message || e)}</span>`; }
+
+async function addText(text) {
+  if (!text.trim()) return;
+  $('#send').disabled = true; $('#hint').textContent = 'Reading the entry…';
+  try {
+    const j = await api('/api/text-entry', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) });
+    showResult(j); applyEntries(j.entries || [], null); $('#txt').value = '';
+  } catch (e) { showError(e); }
+  $('#send').disabled = false; $('#hint').textContent = 'Tap the mic and speak another entry';
+}
+
+// ---------- recording
+let rec = null, chunks = [], stopTimer = null;
+async function toggleMic() {
+  if (rec && rec.state === 'recording') { rec.stop(); return; }
+  let stream;
+  try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+  catch { showError('Microphone permission denied — type the entry instead.'); return; }
+  chunks = [];
+  const mime = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '';
+  rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+  rec.ondataavailable = e => e.data.size && chunks.push(e.data);
+  rec.onstop = async () => {
+    clearTimeout(stopTimer);
+    stream.getTracks().forEach(t => t.stop());
+    $('#mic').classList.remove('rec'); $('#mic').disabled = true;
+    $('#hint').textContent = 'Listening with Saaras… then writing the khata with Sarvam-105B';
+    const type = rec.mimeType || 'audio/webm';
+    const ext = type.includes('mp4') ? 'mp4' : type.includes('ogg') ? 'ogg' : 'webm';
+    const fd = new FormData(); fd.append('audio', new Blob(chunks, { type }), 'entry.' + ext);
+    try { const j = await api('/api/voice-entry', { method: 'POST', body: fd }); showResult(j); applyEntries(j.entries || [], j.language_code); }
+    catch (e) { showError(e); }
+    $('#mic').disabled = false; $('#hint').textContent = 'Tap the mic and speak another entry';
+  };
+  rec.start();
+  $('#mic').classList.add('rec'); $('#hint').textContent = 'Recording… tap again to stop (max 25s)';
+  stopTimer = setTimeout(() => rec.state === 'recording' && rec.stop(), 25000);
+}
+
+// ---------- reminders
+async function remind(key, btn) {
+  const c = state.customers[key]; const due = balance(c);
+  const items = [...new Set(c.tx.filter(t => t.type === 'credit' && t.items).map(t => t.items))].join(', ');
+  const box = document.getElementById('rem-' + CSS.escape(key));
+  btn.disabled = true; btn.textContent = 'Writing…';
+  try {
+    const j = await api('/api/reminder', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customer: c.name, amount: due, items, language: c.lang, shop: $('#shop').value || 'Kirana Store' }) });
+    const url = 'data:' + j.mime + ';base64,' + j.audio_b64;
+    box.style.display = 'block';
+    box.innerHTML = `<div>${esc(j.text)}</div><audio controls autoplay src="${url}"></audio>
+      <a href="${url}" download="reminder-${esc(c.name)}.wav">⬇ Download voice note</a>
+      <a href="https://wa.me/?text=${encodeURIComponent(j.text)}" target="_blank" rel="noopener">Share text on WhatsApp</a>`;
+  } catch (e) { box.style.display = 'block'; box.innerHTML = `<span class="err">⚠️ ${esc(e.message)}</span>`; }
+  btn.disabled = false; btn.textContent = '🔊 Voice reminder';
+}
+
+function render() {
+  const keys = Object.keys(state.customers);
+  const total = keys.reduce((s, k) => s + Math.max(0, balance(state.customers[k])), 0);
+  $('#total').textContent = rupee(total);
+  if (!keys.length) { $('#ledger').innerHTML = '<div class="empty">No entries yet. Speak one on the left 👈</div>'; return; }
+  keys.sort((a, b) => balance(state.customers[b]) - balance(state.customers[a]));
+  const opts = l => Object.entries(LANGS).map(([code, name]) => `<option value="${code}" ${code === l ? 'selected' : ''}>${name}</option>`).join('');
+  $('#ledger').innerHTML = keys.map(k => {
+    const c = state.customers[k], b = balance(c);
+    const tx = c.tx.slice(-4).reverse().map(t => `<li>${t.type === 'credit' ? '➕ udhaar' : '➖ paid'} ${rupee(t.amount)}${t.items ? ' · ' + esc(t.items) : ''}</li>`).join('');
+    return `<div class="cust">
+      <div class="cust-top"><span class="name">${esc(c.name)}</span><span class="bal ${b > 0 ? 'due' : 'ok'}">${b > 0 ? 'Due ' + rupee(b) : 'Settled'}</span></div>
+      <ul class="tx">${tx}</ul>
+      ${b > 0 ? `<div class="actions"><select data-lang="${esc(k)}" title="Customer's language">${opts(c.lang)}</select>
+        <button class="btn" data-remind="${esc(k)}">🔊 Voice reminder</button></div>` : ''}
+      <div class="reminder" id="rem-${esc(k)}"></div>
+    </div>`;
+  }).join('');
+}
+
+$('#ledger').addEventListener('click', e => { const k = e.target.dataset.remind; if (k) remind(k, e.target); });
+$('#ledger').addEventListener('change', e => { const k = e.target.dataset.lang; if (k) { state.customers[k].lang = e.target.value; save(); } });
+$('#mic').addEventListener('click', toggleMic);
+$('#send').addEventListener('click', () => addText($('#txt').value));
+$('#txt').addEventListener('keydown', e => e.key === 'Enter' && addText($('#txt').value));
+$('#clear').addEventListener('click', () => { if (confirm('Clear the whole khata?')) { state = { customers: {} }; save(); render(); } });
+$('#chips').innerHTML = SAMPLES.map(s => `<span class="chip">${esc(s)}</span>`).join('');
+$('#chips').addEventListener('click', e => e.target.classList.contains('chip') && addText(e.target.textContent));
+render(); status();
+</script>
+</body>
+</html>

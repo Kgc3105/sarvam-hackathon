@@ -1,0 +1,8 @@
+.env
+.env.*
+!.env.example
+*.txt
+!requirements.txt
+__pycache__/
+*.pyc
+.venv/
