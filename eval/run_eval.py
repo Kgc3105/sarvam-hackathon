@@ -35,6 +35,10 @@ STORIES = [
      {"days_worked": 25, "daily_rate": 400, "amount_paid": 7000, "overtime_hours": 50}, 8000),
     ("Telugu (monthly salary)", "నేను ఇంటి పనిమనిషిగా నెలకు 7800 జీతానికి పని చేశాను, 26 రోజులు పని చేశాను, కానీ 5000 మాత్రమే ఇచ్చారు.",
      {"days_worked": 26, "daily_rate": 300, "amount_paid": 5000}, 2800),
+    ("Code-mixed Hinglish (Latin script)", "Maine 22 days kaam kiya site pe, contractor ne per day 650 bola tha, but sirf 10000 pay kiya. 12 hours overtime ka bhi nahi diya.",
+     {"days_worked": 22, "daily_rate": 650, "amount_paid": 10000, "overtime_hours": 12}, 6250),
+    ("Code-mixed Hindi + English (mixed scripts)", "मैंने 22 days काम किया, contractor ने 650 per day बोला था, but सिर्फ 10000 pay किया, और 12 hours overtime का पैसा नहीं दिया।",
+     {"days_worked": 22, "daily_rate": 650, "amount_paid": 10000, "overtime_hours": 12}, 6250),
     ("English (paid in full)", "I worked 10 days as a painter at 800 per day and the contractor paid me 8000.",
      {"days_worked": 10, "daily_rate": 800, "amount_paid": 8000}, 0),
 ]

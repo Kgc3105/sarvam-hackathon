@@ -279,7 +279,7 @@ Reply with ONLY a JSON object, no prose, no markdown:
  "work_place": string|null, "period": string|null (e.g. "October 2026"),
  "days_worked": number|null, "daily_rate": number|null (rupees per day that was PROMISED/agreed; if a monthly salary was agreed, divide by 26),
  "amount_paid": number|null (total rupees actually received for this period, including advances),
- "overtime_hours": number|null (extra hours beyond normal 8-hour days; if they say "2 ghante roz extra" for N days, multiply),
+ "overtime_hours": number|null (extra hours WORKED beyond normal 8-hour days, whether or not they were paid for them - "12 hours overtime ka paisa nahi diya" means 12; if they say "2 ghante roz extra" for N days, multiply),
  "deductions": number|null (ONLY money the worker explicitly says was cut / deducted / kaat liya for some reason such as advance, food, tools, damage, commission. The unpaid balance is NOT a deduction - use null),
  "deduction_reason": string|null}
 Convert number words to digits ("dedh sau"=150, "paune"/"sava"/"dhai" fractions, native-script digits). Names in English letters.

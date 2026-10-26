@@ -41,6 +41,7 @@ Most of India's workforce is informal: construction labourers, farm hands, brick
 |---|---|
 | Work stories → facts → correct amount owed: Hindi, Hinglish ("saade paanch sau" = 550), Tamil, Bengali (native ২৪ digits + deduction), Marathi ("2 hours extra daily" → 50 h overtime), Telugu (monthly salary → daily rate), English (paid in full → ₹0) | **7/7** |
 | Real voice round-trip: Bulbul speaks → Saaras hears (detected `hi-IN`) → facts → ₹2,500 owed | **pass** |
+| **Code-mixed Hindi + English**, typed in English letters, in mixed Devanagari + English, and **spoken** (*"Maine 22 days kaam kiya, contractor ne 650 per day bola tha, but sirf 10000 pay kiya, aur 12 hours overtime ka paisa nahi diya"*) → ₹6,250 owed, tested on the live deployment | **3/3** |
 | Sarvam Vision reads [the attendance card](samples/attendance_card.jpg): worker, contractor, site, month, 26 days, ₹600/day, ₹12,000 paid, 20 h overtime | **pass** (~6–8 s) |
 | Hindi explanation + employer letter + Labour Office complaint all quote exactly ₹6,600, spoken by Bulbul | **pass** |
 
