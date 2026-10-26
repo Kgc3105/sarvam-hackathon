@@ -276,7 +276,7 @@ NUMERIC = {"days_worked", "daily_rate", "amount_paid", "overtime_hours", "deduct
 FACTS_SYSTEM = """You help Indian daily-wage workers (construction, farm, factory, domestic, loading) check if they were underpaid.
 Read the worker's account (spoken in any Indian language or code-mixed, or text from a photo of an attendance card / wage slip).
 Reply with ONLY a JSON object, no prose, no markdown:
-{"worker_name": string|null, "employer_name": string|null (contractor / thekedar / malik / company), "work_type": string|null (in English),
+{"worker_name": string|null, "employer_name": string|null (the actual NAME of the contractor / company; null if they only say a generic word like thekedar, malik, seth, contractor), "work_type": string|null (in English),
  "work_place": string|null, "period": string|null (e.g. "October 2026"),
  "days_worked": number|null, "daily_rate": number|null (rupees per day that was PROMISED/agreed; if a monthly salary was agreed, divide by 26),
  "amount_paid": number|null (total rupees actually received for this period, including advances),
