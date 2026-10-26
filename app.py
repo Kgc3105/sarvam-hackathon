@@ -30,7 +30,6 @@ import requests
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 load_dotenv()
@@ -59,8 +58,8 @@ LANGUAGES = {
 }
 
 app = FastAPI(title="Haq Hisaab")
-STATIC = Path(__file__).parent / "static"
-app.mount("/static", StaticFiles(directory=STATIC), name="static")
+# On Vercel, public/ is served by the CDN; locally and on Render FastAPI serves it.
+PUBLIC = Path(__file__).parent / "public"
 
 _cache = {}
 usage = {"stt_calls": 0, "chat_calls": 0, "tts_calls": 0, "tts_chars": 0, "vision_pages": 0, "cache_hits": 0}
@@ -396,7 +395,7 @@ def write_claim(f: Facts, calc, lang):
 # ---------------------------------------------------------------- routes
 @app.get("/")
 def index():
-    return FileResponse(STATIC / "index.html")
+    return FileResponse(PUBLIC / "index.html")
 
 
 @app.get("/api/status")
