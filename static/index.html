@@ -3,69 +3,75 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bolo Khata</title>
+<title>Haq Hisaab</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #fbf7f0; --card: #ffffff; --ink: #1d1a16; --muted: #6f675c; --line: #ebe3d6;
-    --brand: #e0661b; --brand-ink: #ffffff; --due: #c0392b; --paid: #1e8449; --soft: #fff1e6;
+    --bg: #f6f4ef; --card: #ffffff; --ink: #14161f; --muted: #646876; --line: #e4e1d8;
+    --brand: #f2a20c; --brand-ink: #1b1300; --navy: #1f2a5a; --owed: #c0392b; --ok: #1e8449; --soft: #fdf4e1; --flag: #fff4f2;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #17140f; --card: #221e18; --ink: #f3ede4; --muted: #a89e90; --line: #3a332a;
-      --brand: #ff8a3d; --brand-ink: #1a1007; --due: #ff7b6b; --paid: #5fd38a; --soft: #2d2218;
+      --bg: #11131a; --card: #1a1d27; --ink: #eef0f6; --muted: #9ba0b0; --line: #2d3140;
+      --brand: #ffb72e; --brand-ink: #1b1300; --navy: #9fb0ff; --owed: #ff7b6b; --ok: #5fd38a; --soft: #262218; --flag: #2b1b1a;
     }
   }
+  :root[data-theme="dark"] {
+    --bg: #11131a; --card: #1a1d27; --ink: #eef0f6; --muted: #9ba0b0; --line: #2d3140;
+    --brand: #ffb72e; --brand-ink: #1b1300; --navy: #9fb0ff; --owed: #ff7b6b; --ok: #5fd38a; --soft: #262218; --flag: #2b1b1a;
+  }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--ink);
-         font-family: Inter, "Noto Sans Devanagari", system-ui, sans-serif; }
-  .wrap { max-width: 980px; margin: 0 auto; padding: 20px 16px 60px; }
-  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-  h1 { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, "Noto Sans Devanagari", system-ui, sans-serif; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 20px 16px 60px; }
+  header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+  h1 { margin: 0; font-size: 30px; font-weight: 800; letter-spacing: -0.5px; color: var(--navy); }
   h1 span { color: var(--brand); }
-  .sub { color: var(--muted); margin: 4px 0 0; font-size: 14px; }
-  .badge { font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
-  .badge.live { color: var(--paid); border-color: var(--paid); }
-  .grid { display: grid; grid-template-columns: 1fr 1.3fr; gap: 16px; margin-top: 18px; }
-  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
-  .card h2 { margin: 0 0 12px; font-size: 16px; }
-  .mic { width: 132px; height: 132px; border-radius: 50%; border: none; cursor: pointer; display: block; margin: 8px auto 10px;
-         background: var(--brand); color: var(--brand-ink); font-size: 46px; box-shadow: 0 8px 24px rgba(224,102,27,.35); transition: transform .1s; }
-  .mic:active { transform: scale(.97); }
-  .mic.rec { animation: pulse 1.1s infinite; background: var(--due); }
+  .sub { color: var(--muted); margin: 4px 0 0; font-size: 14px; max-width: 640px; }
+  .badge { font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+  .badge.live { color: var(--ok); border-color: var(--ok); }
+  .grid { display: grid; grid-template-columns: 1fr 1fr 1.1fr; gap: 16px; margin-top: 18px; align-items: start; }
+  @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; min-width: 0; }
+  .card h2 { margin: 0 0 12px; font-size: 16px; color: var(--navy); }
+  .mic { width: 112px; height: 112px; border-radius: 50%; border: none; cursor: pointer; display: block; margin: 6px auto 10px;
+         background: var(--brand); color: var(--brand-ink); font-size: 40px; box-shadow: 0 8px 24px rgba(242,162,12,.35); }
+  .mic.rec { animation: pulse 1.1s infinite; background: var(--owed); }
   @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(192,57,43,.5);} 100% { box-shadow: 0 0 0 26px rgba(192,57,43,0);} }
   .hint { text-align: center; color: var(--muted); font-size: 13px; min-height: 18px; }
-  .row { display: flex; gap: 8px; margin-top: 14px; }
-  input, select { font: inherit; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); min-width: 0; }
-  input.grow { flex: 1; }
-  button.btn { font: inherit; font-weight: 600; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--brand); background: var(--brand); color: var(--brand-ink); cursor: pointer; white-space: nowrap; }
-  button.ghost { background: transparent; color: var(--brand); }
+  .row { display: flex; gap: 8px; margin-top: 12px; }
+  input, select, textarea { font: inherit; padding: 9px 11px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); min-width: 0; width: 100%; }
+  textarea { resize: vertical; }
+  .btn { font: inherit; font-weight: 600; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--navy); background: var(--navy); color: var(--card); cursor: pointer; white-space: nowrap; }
+  .btn.brand { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+  .btn.ghost { background: transparent; color: var(--navy); }
+  .btn.big { width: 100%; padding: 14px; font-size: 16px; }
   button:disabled { opacity: .5; cursor: wait; }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-  .chip { font-size: 12px; padding: 5px 9px; border-radius: 999px; background: var(--soft); border: 1px solid var(--line); cursor: pointer; color: var(--ink); }
-  .result { margin-top: 14px; padding: 12px; border-radius: 12px; background: var(--soft); font-size: 14px; display: none; }
-  .result .said { color: var(--muted); font-size: 13px; }
-  .result .conf { font-weight: 600; margin-top: 6px; }
-  .total { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
-  .total b { font-size: 26px; color: var(--due); }
-  .cust { border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-top: 10px; }
-  .cust-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .name { font-weight: 700; font-size: 16px; }
-  .bal { font-weight: 800; }
-  .bal.due { color: var(--due); } .bal.ok { color: var(--paid); }
-  .tx { font-size: 13px; color: var(--muted); margin: 6px 0 0; padding-left: 16px; }
-  .actions { display: flex; gap: 6px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
-  .actions select { padding: 7px 8px; font-size: 13px; }
-  .actions .btn { padding: 7px 10px; font-size: 13px; }
-  .reminder { margin-top: 10px; padding: 10px; border-radius: 10px; background: var(--soft); font-size: 14px; display: none; }
-  .reminder audio { width: 100%; margin-top: 8px; }
-  .reminder a { color: var(--brand); font-size: 13px; margin-right: 12px; }
-  .empty { color: var(--muted); font-size: 14px; text-align: center; padding: 24px 0; }
-  .flow { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px; font-size: 12px; color: var(--muted); }
+  .chip { font-size: 12px; padding: 5px 9px; border-radius: 999px; background: var(--soft); border: 1px solid var(--line); cursor: pointer; color: var(--ink); text-align: left; }
+  .heard { margin-top: 12px; padding: 10px; border-radius: 10px; background: var(--soft); font-size: 13px; display: none; }
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; }
+  .fields label { font-size: 12px; color: var(--muted); display: block; }
+  .fields label.miss input { border-color: var(--owed); background: var(--flag); }
+  .fields .note { font-size: 11px; color: var(--navy); }
+  .owed { margin-top: 14px; padding: 14px; border-radius: 12px; background: var(--soft); }
+  .owed .big { font-size: 34px; font-weight: 800; color: var(--owed); }
+  .owed.zero .big { color: var(--ok); }
+  .lines { font-size: 13px; margin: 8px 0 0; padding: 0; list-style: none; }
+  .lines li { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; border-bottom: 1px dashed var(--line); }
+  .flag { margin-top: 8px; padding: 8px 10px; border-radius: 8px; background: var(--flag); border-left: 3px solid var(--owed); font-size: 13px; }
+  .out { display: none; margin-top: 12px; }
+  .out audio { width: 100%; margin: 8px 0; }
+  .explain { font-size: 15px; line-height: 1.55; padding: 12px; border-radius: 10px; background: var(--soft); }
+  .tabs { display: flex; gap: 6px; margin-top: 12px; }
+  .tabs button { flex: 1; }
+  .tabs button.on { background: var(--navy); color: var(--card); }
+  pre.letter { white-space: pre-wrap; font-family: inherit; font-size: 13px; line-height: 1.5; padding: 12px; border: 1px solid var(--line); border-radius: 10px; max-height: 340px; overflow: auto; margin: 8px 0; }
+  .links a { color: var(--navy); font-size: 13px; margin-right: 14px; cursor: pointer; }
+  .flow { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px; font-size: 11px; color: var(--muted); }
   .flow span { border: 1px dashed var(--line); padding: 4px 8px; border-radius: 8px; }
-  .err { color: var(--due); }
+  .err { color: var(--owed); font-size: 13px; }
+  .muted { color: var(--muted); font-size: 12px; }
   footer { margin-top: 24px; color: var(--muted); font-size: 12px; text-align: center; }
 </style>
 </head>
@@ -73,182 +79,236 @@
 <div class="wrap">
   <header>
     <div>
-      <h1>Bolo <span>Khata</span> · बोलो खाता</h1>
-      <p class="sub">Speak your udhaar. We keep the khata and send polite reminders in your customer's language.</p>
+      <h1>Haq <span>Hisaab</span> · हक़ हिसाब</h1>
+      <p class="sub">For India's daily-wage workers. Speak your work story in your language, and find out exactly how much you are owed, with the letters to claim it.</p>
     </div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <input id="shop" value="Sharma Kirana Store" title="Shop name" style="width:190px">
-      <span id="mode" class="badge">…</span>
-    </div>
+    <span id="mode" class="badge">…</span>
   </header>
 
   <div class="grid">
     <section class="card">
-      <h2>1 · Bolo (speak an entry)</h2>
+      <h2>1 · Batao: tell your story</h2>
       <button id="mic" class="mic" title="Tap to record, tap again to stop">🎙️</button>
-      <div id="hint" class="hint">Tap and say: “Ramesh ne 200 ka atta udhaar liya”</div>
-      <div class="row">
-        <input id="txt" class="grow" placeholder="…or type it in any language">
-        <button id="send" class="btn">Add</button>
-      </div>
+      <div id="hint" class="hint">Tap and say how many days you worked, the rate you were promised, and what you got</div>
+      <div class="row"><textarea id="txt" rows="2" placeholder="…or type it in any language"></textarea></div>
+      <div class="row"><button id="send" class="btn">Check my wages</button>
+        <label class="btn ghost" style="text-align:center;flex:1">📷 Add card / slip<input id="photo" type="file" accept="image/*" capture="environment" hidden></label></div>
       <div class="chips" id="chips"></div>
-      <div id="result" class="result"></div>
-      <div class="flow">
-        <span>🎙️ Saaras v3 · speech→text</span><span>🧠 Sarvam-105B · text→ledger</span><span>✍️ Sarvam-105B · reminder</span><span>🔊 Bulbul v3 · voice note</span>
-      </div>
+      <div id="heard" class="heard"></div>
+      <div class="flow"><span>🎙️ Saaras v3</span><span>📷 Sarvam Vision</span><span>🧠 Sarvam-105B</span><span>🔊 Bulbul v3</span></div>
     </section>
 
     <section class="card">
-      <div class="total"><h2 style="margin:0">2 · Khata (ledger)</h2><div>Total due <b id="total">₹0</b></div></div>
-      <div id="ledger"></div>
-      <div class="row" style="justify-content:flex-end"><button id="clear" class="btn ghost">Clear khata</button></div>
+      <h2>2 · Hisaab: the facts and the maths</h2>
+      <div class="fields" id="fields"></div>
+      <div id="owed" class="owed"></div>
+      <p class="muted">The maths is plain arithmetic, not AI: overtime is paid at 2× (Code on Wages 2019, s.14). Edit any number to recalculate.</p>
+    </section>
+
+    <section class="card">
+      <h2>3 · Haq maango: claim it</h2>
+      <label class="muted">Your language</label>
+      <select id="lang"></select>
+      <div class="row"><button id="claim" class="btn brand big">🔊 Explain to me &amp; write my letters</button></div>
+      <div id="out" class="out"></div>
+      <p class="muted" style="margin-top:12px">Not legal advice. Free legal aid: NALSA helpline <b>15100</b>.</p>
     </section>
   </div>
-  <footer>Ledger is stored only in this browser. Built with Sarvam AI APIs.</footer>
+  <footer>Nothing is stored on the server. Built with Sarvam AI.</footer>
 </div>
 
 <script>
 const $ = s => document.querySelector(s);
-const LS = 'bolo-khata-v1';
-let state = load();
-let LANGS = {"hi-IN":"Hindi"};
-const SAMPLES = [
-  "Ramesh ne 200 ka atta aur 50 ka tel udhaar liya",
-  "सुनीता ने 500 रुपये वापस दिए",
-  "Kumar 350 rupees ku arisi vaanginaar, credit la ezhudhu",
-  "Fatima took milk and bread for 120 on credit",
+const FIELDS = [
+  ['worker_name', 'Your name', 'text'], ['employer_name', 'Employer / thekedar', 'text'],
+  ['days_worked', 'Days worked', 'number'], ['daily_rate', 'Promised ₹ / day', 'number'],
+  ['amount_paid', '₹ received', 'number'], ['overtime_hours', 'Overtime hours', 'number'],
+  ['deductions', '₹ deducted', 'number'], ['state_min_wage', 'State min. wage ₹/day (optional)', 'number'],
 ];
+const SAMPLES = [
+  'मैंने अक्टूबर में 26 दिन साइट पर काम किया, ठेकेदार ने 600 रुपये रोज़ बोला था, पर सिर्फ 12000 दिए। 20 घंटे ओवरटाइम का कुछ नहीं दिया।',
+  'நான் 22 நாள் கட்டிட வேலை செய்தேன், ஒரு நாளுக்கு 700 ரூபாய் சொன்னாங்க, ஆனா 11000 தான் கொடுத்தாங்க.',
+  'আমি ২৪ দিন ইটভাটায় কাজ করেছি, রোজ ৪৫০ টাকা বলেছিল, কিন্তু ৮০০০ টাকা দিয়েছে, আর ১০০০ টাকা কেটে নিয়েছে।',
+  'मी 25 दिवस शेतात काम केलं, रोज 400 ठरले होते, मालकाने फक्त 7000 दिले, आणि रोज 2 तास जास्त काम केलं.',
+];
+let facts = {}, notes = {}, LANGS = { 'hi-IN': 'Hindi' }, calcTimer = null, lastCalc = null, outData = null;
 
-function load() { try { return JSON.parse(localStorage.getItem(LS)) || { customers: {} }; } catch { return { customers: {} }; } }
-function save() { try { localStorage.setItem(LS, JSON.stringify(state)); } catch {} }
-function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function rupee(n) { return '₹' + Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }); }
-
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function rupee(n) { return '₹' + Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 }); }
 async function api(path, opts) {
   const r = await fetch(path, opts);
   const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(j.detail || ('HTTP ' + r.status));
+  if (!r.ok) throw new Error(typeof j.detail === 'string' ? j.detail : ('Something went wrong (HTTP ' + r.status + ')'));
   return j;
 }
+function busy(on, msg) { ['#mic', '#send', '#claim'].forEach(s => $(s).disabled = on); if (msg) $('#hint').textContent = msg; }
 
-async function status() {
-  try {
-    const s = await api('/api/status');
-    LANGS = s.languages;
-    const m = $('#mode');
-    m.textContent = s.mock ? 'DEMO MODE (no API calls)' : 'LIVE · Sarvam AI';
-    m.className = 'badge' + (s.mock ? '' : ' live');
-    render();
-  } catch (e) { $('#mode').textContent = 'server offline'; }
+function renderFields() {
+  const missing = new Set(lastCalc ? lastCalc.missing : []);
+  $('#fields').innerHTML = FIELDS.map(([k, label, type]) => `
+    <label class="${missing.has(k) ? 'miss' : ''}">${esc(label)}
+      <input data-k="${k}" type="${type}" ${type === 'number' ? 'min="0" inputmode="decimal"' : ''} value="${esc(facts[k] ?? '')}">
+      ${notes[k] ? `<span class="note">${esc(notes[k])}</span>` : ''}</label>`).join('');
 }
 
-function balance(c) { return c.tx.reduce((b, t) => b + (t.type === 'credit' ? t.amount : -t.amount), 0); }
-
-function applyEntries(entries, langCode) {
-  for (const e of entries) {
-    const key = e.customer.toLowerCase();
-    const c = state.customers[key] ||= { name: e.customer, lang: langCode || 'hi-IN', tx: [] };
-    c.tx.push({ type: e.type, amount: e.amount, items: e.items, at: new Date().toISOString() });
+function renderOwed(c) {
+  const box = $('#owed');
+  if (!c) { box.innerHTML = '<span class="muted">Tell your story to start.</span>'; return; }
+  if (c.missing.length) {
+    box.className = 'owed';
+    box.innerHTML = `<div class="muted">Still needed: <b>${c.missing.map(m => esc(m.replace(/_/g, ' '))).join(', ')}</b></div>`;
+    return;
   }
-  save(); render();
+  box.className = 'owed' + (c.total_due > 0 ? '' : ' zero');
+  box.innerHTML = `<div class="muted">${c.total_due > 0 ? 'You are owed' : 'You were paid in full'}</div>
+    <div class="big">${rupee(c.total_due)}</div>
+    <ul class="lines">${c.lines.map(l => `<li><span>${esc(l.label)}</span><b>${l.amount < 0 ? '−' : ''}${rupee(Math.abs(l.amount))}</b></li>`).join('')}
+      ${c.min_wage_gap ? `<li><span>Minimum wage shortfall</span><b>${rupee(c.min_wage_gap)}</b></li>` : ''}</ul>
+    ${c.flags.map(f => `<div class="flag">⚠️ ${esc(f)}</div>`).join('')}`;
 }
 
-function showResult(j) {
-  const box = $('#result');
-  box.style.display = 'block';
-  const list = (j.entries || []).map(e =>
-    `<li>${esc(e.customer)} — <b>${e.type === 'credit' ? 'udhaar' : 'paid'}</b> ${rupee(e.amount)}${e.items ? ' (' + esc(e.items) + ')' : ''}</li>`).join('');
-  box.innerHTML = `<div class="said">Heard${j.language_code ? ' [' + esc(j.language_code) + ']' : ''}: “${esc(j.transcript)}”</div>
-    <div class="conf">${esc(j.confirmation)}</div>${list ? '<ul style="margin:6px 0 0;padding-left:18px">' + list + '</ul>' : ''}`;
+async function recalc() {
+  try { lastCalc = await api('/api/calculate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(facts) }); }
+  catch (e) { lastCalc = null; }
+  renderOwed(lastCalc);
+  document.querySelectorAll('#fields label').forEach(l => {
+    const k = l.querySelector('input').dataset.k; l.classList.toggle('miss', !!lastCalc && lastCalc.missing.includes(k));
+  });
 }
 
-function showError(e) { const box = $('#result'); box.style.display = 'block'; box.innerHTML = `<span class="err">⚠️ ${esc(e.message || e)}</span>`; }
+function mergeFacts(newFacts, fromPhoto) {
+  for (const [k, v] of Object.entries(newFacts || {})) {
+    if (v === null || v === undefined || v === '') continue;
+    const old = facts[k];
+    if (fromPhoto && old !== undefined && old !== null && old !== '' && String(old) !== String(v)) notes[k] = `📷 card shows ${v} (you said ${old})`;
+    else if (fromPhoto) notes[k] = '📷 from card';
+    facts[k] = v;
+  }
+  renderFields(); recalc();
+}
 
-async function addText(text) {
+function showHeard(html) { const h = $('#heard'); h.style.display = 'block'; h.innerHTML = html; }
+function setLang(code) { if (code && LANGS[code]) $('#lang').value = code; }
+
+async function sendText(text) {
   if (!text.trim()) return;
-  $('#send').disabled = true; $('#hint').textContent = 'Reading the entry…';
+  busy(true, 'Sarvam-105B is reading your story…');
   try {
-    const j = await api('/api/text-entry', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) });
-    showResult(j); applyEntries(j.entries || [], null); $('#txt').value = '';
-  } catch (e) { showError(e); }
-  $('#send').disabled = false; $('#hint').textContent = 'Tap the mic and speak another entry';
+    const j = await api('/api/story-text', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) });
+    showHeard(`<b>Your story:</b> ${esc(j.transcript)}`); facts = {}; notes = {}; mergeFacts(j.facts, false); clearOut();
+    guessLangFromScript(text);
+  } catch (e) { showHeard(`<span class="err">⚠️ ${esc(e.message)}</span>`); }
+  busy(false, 'Check the numbers in step 2, then claim it in step 3');
 }
 
-// ---------- recording
+function guessLangFromScript(t) {
+  const ranges = [['hi-IN', 0x0900, 0x097F], ['bn-IN', 0x0980, 0x09FF], ['pa-IN', 0x0A00, 0x0A7F], ['gu-IN', 0x0A80, 0x0AFF], ['od-IN', 0x0B00, 0x0B7F],
+    ['ta-IN', 0x0B80, 0x0BFF], ['te-IN', 0x0C00, 0x0C7F], ['kn-IN', 0x0C80, 0x0CFF], ['ml-IN', 0x0D00, 0x0D7F]];
+  for (const ch of t) { const c = ch.codePointAt(0); const r = ranges.find(([, a, b]) => c >= a && c <= b); if (r) { setLang(r[0]); return; } }
+}
+
+// ---------- voice
 let rec = null, chunks = [], stopTimer = null;
 async function toggleMic() {
   if (rec && rec.state === 'recording') { rec.stop(); return; }
+  if (!window.MediaRecorder || !navigator.mediaDevices) { showHeard('<span class="err">⚠️ Recording is not supported here. Please type instead.</span>'); return; }
   let stream;
   try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
-  catch { showError('Microphone permission denied — type the entry instead.'); return; }
+  catch { showHeard('<span class="err">⚠️ Microphone blocked. Please type instead.</span>'); return; }
   chunks = [];
-  const mime = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '';
+  const mime = ['audio/webm', 'audio/mp4', 'audio/ogg'].find(m => MediaRecorder.isTypeSupported(m)) || '';
   rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
   rec.ondataavailable = e => e.data.size && chunks.push(e.data);
   rec.onstop = async () => {
-    clearTimeout(stopTimer);
-    stream.getTracks().forEach(t => t.stop());
-    $('#mic').classList.remove('rec'); $('#mic').disabled = true;
-    $('#hint').textContent = 'Listening with Saaras… then writing the khata with Sarvam-105B';
-    const type = rec.mimeType || 'audio/webm';
+    clearTimeout(stopTimer); stream.getTracks().forEach(t => t.stop()); $('#mic').classList.remove('rec');
+    busy(true, 'Saaras is listening… Sarvam-105B is working out the facts');
+    const type = (rec.mimeType || 'audio/webm').split(';')[0];
     const ext = type.includes('mp4') ? 'mp4' : type.includes('ogg') ? 'ogg' : 'webm';
-    const fd = new FormData(); fd.append('audio', new Blob(chunks, { type }), 'entry.' + ext);
-    try { const j = await api('/api/voice-entry', { method: 'POST', body: fd }); showResult(j); applyEntries(j.entries || [], j.language_code); }
-    catch (e) { showError(e); }
-    $('#mic').disabled = false; $('#hint').textContent = 'Tap the mic and speak another entry';
+    const fd = new FormData(); fd.append('audio', new Blob(chunks, { type }), 'story.' + ext);
+    try {
+      const j = await api('/api/story-voice', { method: 'POST', body: fd });
+      showHeard(`<b>Heard</b> [${esc(LANGS[j.language_code] || j.language_code)}]: ${esc(j.transcript)}`);
+      setLang(j.language_code); facts = {}; notes = {}; mergeFacts(j.facts, false); clearOut();
+    } catch (e) { showHeard(`<span class="err">⚠️ ${esc(e.message)}</span>`); }
+    busy(false, 'Check the numbers in step 2, then claim it in step 3');
   };
-  rec.start();
-  $('#mic').classList.add('rec'); $('#hint').textContent = 'Recording… tap again to stop (max 25s)';
+  rec.start(); $('#mic').classList.add('rec'); $('#hint').textContent = 'Recording… tap again to stop (max 25s)';
   stopTimer = setTimeout(() => rec.state === 'recording' && rec.stop(), 25000);
 }
 
-// ---------- reminders
-async function remind(key, btn) {
-  const c = state.customers[key]; const due = balance(c);
-  const items = [...new Set(c.tx.filter(t => t.type === 'credit' && t.items).map(t => t.items))].join(', ');
-  const box = document.getElementById('rem-' + CSS.escape(key));
-  btn.disabled = true; btn.textContent = 'Writing…';
+// ---------- photo evidence (resized in the browser to keep uploads small)
+async function shrink(file) {
   try {
-    const j = await api('/api/reminder', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ customer: c.name, amount: due, items, language: c.lang, shop: $('#shop').value || 'Kirana Store' }) });
-    const url = 'data:' + j.mime + ';base64,' + j.audio_b64;
-    box.style.display = 'block';
-    box.innerHTML = `<div>${esc(j.text)}</div><audio controls autoplay src="${url}"></audio>
-      <a href="${url}" download="reminder-${esc(c.name)}.wav">⬇ Download voice note</a>
-      <a href="https://wa.me/?text=${encodeURIComponent(j.text)}" target="_blank" rel="noopener">Share text on WhatsApp</a>`;
-  } catch (e) { box.style.display = 'block'; box.innerHTML = `<span class="err">⚠️ ${esc(e.message)}</span>`; }
-  btn.disabled = false; btn.textContent = '🔊 Voice reminder';
+    const img = await createImageBitmap(file);
+    const s = Math.min(1, 1600 / Math.max(img.width, img.height));
+    const c = document.createElement('canvas'); c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    return await new Promise(res => c.toBlob(b => res(b || file), 'image/jpeg', 0.85));
+  } catch { return file; }
+}
+async function sendPhoto(file) {
+  if (!file) return;
+  busy(true, 'Sarvam Vision is reading your card… (5–20 s)');
+  try {
+    const fd = new FormData(); fd.append('image', await shrink(file), 'card.jpg'); fd.append('language', $('#lang').value);
+    const j = await api('/api/evidence-photo', { method: 'POST', body: fd });
+    showHeard(`<b>📷 Card read by Sarvam Vision:</b><pre class="letter" style="max-height:120px">${esc(j.page_text)}</pre>`);
+    mergeFacts(j.facts, true); clearOut();
+  } catch (e) { showHeard(`<span class="err">⚠️ ${esc(e.message)}</span>`); }
+  $('#photo').value = '';
+  busy(false, 'Card added as evidence. Check step 2.');
 }
 
-function render() {
-  const keys = Object.keys(state.customers);
-  const total = keys.reduce((s, k) => s + Math.max(0, balance(state.customers[k])), 0);
-  $('#total').textContent = rupee(total);
-  if (!keys.length) { $('#ledger').innerHTML = '<div class="empty">No entries yet. Speak one on the left 👈</div>'; return; }
-  keys.sort((a, b) => balance(state.customers[b]) - balance(state.customers[a]));
-  const opts = l => Object.entries(LANGS).map(([code, name]) => `<option value="${code}" ${code === l ? 'selected' : ''}>${name}</option>`).join('');
-  $('#ledger').innerHTML = keys.map(k => {
-    const c = state.customers[k], b = balance(c);
-    const tx = c.tx.slice(-4).reverse().map(t => `<li>${t.type === 'credit' ? '➕ udhaar' : '➖ paid'} ${rupee(t.amount)}${t.items ? ' · ' + esc(t.items) : ''}</li>`).join('');
-    return `<div class="cust">
-      <div class="cust-top"><span class="name">${esc(c.name)}</span><span class="bal ${b > 0 ? 'due' : 'ok'}">${b > 0 ? 'Due ' + rupee(b) : 'Settled'}</span></div>
-      <ul class="tx">${tx}</ul>
-      ${b > 0 ? `<div class="actions"><select data-lang="${esc(k)}" title="Customer's language">${opts(c.lang)}</select>
-        <button class="btn" data-remind="${esc(k)}">🔊 Voice reminder</button></div>` : ''}
-      <div class="reminder" id="rem-${esc(k)}"></div>
-    </div>`;
-  }).join('');
+// ---------- claim
+function clearOut() { $('#out').style.display = 'none'; outData = null; }
+async function claim() {
+  if (!lastCalc || lastCalc.missing.length) { await recalc(); if (!lastCalc || lastCalc.missing.length) { renderOwed(lastCalc); return; } }
+  $('#claim').disabled = true; $('#claim').textContent = 'Writing your explanation and letters…';
+  try {
+    outData = await api('/api/claim', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ facts, language: $('#lang').value, speak: true }) });
+    const src = outData.audio_b64 ? 'data:' + outData.mime + ';base64,' + outData.audio_b64 : '';
+    $('#out').style.display = 'block';
+    $('#out').innerHTML = `${src ? `<audio controls autoplay src="${src}"></audio>` : ''}
+      <div class="explain">${esc(outData.explanation)}</div>
+      <div class="tabs"><button class="btn ghost on" data-tab="employer_letter">✉️ Letter to employer</button><button class="btn ghost" data-tab="complaint">🏛️ Labour Office complaint</button></div>
+      <pre class="letter" id="letter"></pre>
+      <div class="links"><a id="copy">📋 Copy</a><a id="dl">⬇ Download</a><a id="wa" target="_blank" rel="noopener">WhatsApp</a></div>`;
+    showTab('employer_letter');
+  } catch (e) { $('#out').style.display = 'block'; $('#out').innerHTML = `<span class="err">⚠️ ${esc(e.message)}</span>`; }
+  $('#claim').disabled = false; $('#claim').textContent = '🔊 Explain to me & write my letters';
+}
+function showTab(k) {
+  const t = outData[k] || '';
+  $('#letter').textContent = t;
+  document.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === k));
+  $('#wa').href = 'https://wa.me/?text=' + encodeURIComponent(t);
+  $('#dl').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([t], { type: 'text/plain' })); a.download = k + '.txt'; a.click(); };
+  $('#copy').onclick = () => navigator.clipboard && navigator.clipboard.writeText(t).then(() => { $('#copy').textContent = '✅ Copied'; setTimeout(() => $('#copy').textContent = '📋 Copy', 1500); });
 }
 
-$('#ledger').addEventListener('click', e => { const k = e.target.dataset.remind; if (k) remind(k, e.target); });
-$('#ledger').addEventListener('change', e => { const k = e.target.dataset.lang; if (k) { state.customers[k].lang = e.target.value; save(); } });
+// ---------- wiring
+$('#fields').addEventListener('input', e => {
+  const k = e.target.dataset.k; if (!k) return;
+  const v = e.target.value; facts[k] = e.target.type === 'number' ? (v === '' ? null : Number(v)) : (v || null);
+  delete notes[k]; clearTimeout(calcTimer); calcTimer = setTimeout(recalc, 250); clearOut();
+});
+$('#out').addEventListener('click', e => { const k = e.target.dataset.tab; if (k) showTab(k); });
 $('#mic').addEventListener('click', toggleMic);
-$('#send').addEventListener('click', () => addText($('#txt').value));
-$('#txt').addEventListener('keydown', e => e.key === 'Enter' && addText($('#txt').value));
-$('#clear').addEventListener('click', () => { if (confirm('Clear the whole khata?')) { state = { customers: {} }; save(); render(); } });
-$('#chips').innerHTML = SAMPLES.map(s => `<span class="chip">${esc(s)}</span>`).join('');
-$('#chips').addEventListener('click', e => e.target.classList.contains('chip') && addText(e.target.textContent));
-render(); status();
+$('#send').addEventListener('click', () => sendText($('#txt').value));
+$('#photo').addEventListener('change', e => sendPhoto(e.target.files[0]));
+$('#claim').addEventListener('click', claim);
+$('#chips').innerHTML = SAMPLES.map(s => `<button class="chip">${esc(s)}</button>`).join('');
+$('#chips').addEventListener('click', e => { if (e.target.classList.contains('chip')) { $('#txt').value = e.target.textContent; sendText(e.target.textContent); } });
+
+(async () => {
+  renderFields(); renderOwed(null);
+  try {
+    const s = await api('/api/status'); LANGS = s.languages;
+    $('#mode').textContent = s.mock ? 'DEMO MODE (no API calls)' : 'LIVE · Sarvam AI'; $('#mode').className = 'badge' + (s.mock ? '' : ' live');
+  } catch { $('#mode').textContent = 'server offline'; }
+  $('#lang').innerHTML = Object.entries(LANGS).map(([c, n]) => `<option value="${c}">${esc(n)}</option>`).join('');
+})();
 </script>
 </body>
 </html>

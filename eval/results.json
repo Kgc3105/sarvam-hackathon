@@ -1,417 +1,214 @@
 {
- "text": [
-  {
-   "lang": "Hinglish",
-   "input": "Ramesh ne 200 ka atta aur 50 ka tel udhaar liya",
-   "expected": [
-    [
-     "Ramesh",
-     "credit",
-     250
-    ]
-   ],
-   "got": [
-    {
-     "customer": "Ramesh",
-     "type": "credit",
-     "amount": 250.0,
-     "items": "atta and tel"
-    }
-   ],
-   "pass": true,
-   "ms": 1099,
-   "error": ""
-  },
+ "stories": [
   {
    "lang": "Hindi",
-   "input": "सुनीता ने तीन सौ रुपये वापस दिए",
-   "expected": [
-    [
-     "Sunita",
-     "payment",
-     300
-    ]
-   ],
-   "got": [
-    {
-     "customer": "Sunita",
-     "type": "payment",
-     "amount": 300.0,
-     "items": ""
-    }
-   ],
+   "story": "मैंने अक्टूबर में 26 दिन साइट पर काम किया, ठेकेदार ने 600 रुपये रोज़ बोला था, पर सिर्फ 12000 दिए। 20 घंटे ओवरटाइम का कुछ नहीं दिया।",
+   "facts": {
+    "worker_name": null,
+    "employer_name": "ठेकेदार",
+    "work_type": null,
+    "work_place": null,
+    "period": "October",
+    "days_worked": 26.0,
+    "daily_rate": 600.0,
+    "amount_paid": 12000.0,
+    "overtime_hours": 20.0,
+    "deductions": null,
+    "deduction_reason": null
+   },
+   "expected_due": 6600,
+   "total_due": 6600.0,
    "pass": true,
-   "ms": 1083,
+   "ms": 1503,
    "error": ""
   },
   {
-   "lang": "Hindi (dedh sau)",
-   "input": "Mohan ne dedh sau ka doodh udhaar liya",
-   "expected": [
-    [
-     "Mohan",
-     "credit",
-     150
-    ]
-   ],
-   "got": [
-    {
-     "customer": "Mohan",
-     "type": "credit",
-     "amount": 150.0,
-     "items": "doodh"
-    }
-   ],
+   "lang": "Hinglish",
+   "story": "Bhaiya maine 20 din loading ka kaam kiya, roz ke saade paanch sau tay hue the, malik ne bas 8000 diye",
+   "facts": {
+    "worker_name": null,
+    "employer_name": "malik",
+    "work_type": "loading",
+    "work_place": null,
+    "period": null,
+    "days_worked": 20.0,
+    "daily_rate": 550.0,
+    "amount_paid": 8000.0,
+    "overtime_hours": null,
+    "deductions": null,
+    "deduction_reason": null
+   },
+   "expected_due": 3000,
+   "total_due": 3000.0,
    "pass": true,
-   "ms": 1263,
-   "error": ""
-  },
-  {
-   "lang": "Hindi (dhai sau)",
-   "input": "Pinky ne dhai sau ki chini li, paise baad mein degi",
-   "expected": [
-    [
-     "Pinky",
-     "credit",
-     250
-    ]
-   ],
-   "got": [
-    {
-     "customer": "Pinky",
-     "type": "credit",
-     "amount": 250.0,
-     "items": "Sugar"
-    }
-   ],
-   "pass": true,
-   "ms": 1034,
-   "error": ""
-  },
-  {
-   "lang": "Multi-customer",
-   "input": "Raju ne 120 ka sabun udhaar liya aur Geeta ne 400 jama kiye",
-   "expected": [
-    [
-     "Raju",
-     "credit",
-     120
-    ],
-    [
-     "Geeta",
-     "payment",
-     400
-    ]
-   ],
-   "got": [
-    {
-     "customer": "Raju",
-     "type": "credit",
-     "amount": 120.0,
-     "items": "soaps"
-    },
-    {
-     "customer": "Geeta",
-     "type": "payment",
-     "amount": 400.0,
-     "items": ""
-    }
-   ],
-   "pass": true,
-   "ms": 1417,
+   "ms": 1377,
    "error": ""
   },
   {
    "lang": "Tamil",
-   "input": "குமார் 350 ரூபாய்க்கு அரிசி கடனாக வாங்கினார்",
-   "expected": [
-    [
-     "Kumar",
-     "credit",
-     350
-    ]
-   ],
-   "got": [
-    {
-     "customer": "Kumar",
-     "type": "credit",
-     "amount": 350.0,
-     "items": "rice"
-    }
-   ],
+   "story": "நான் 22 நாள் கட்டிட வேலை செய்தேன், ஒரு நாளுக்கு 700 ரூபாய் சொன்னாங்க, ஆனா 11000 தான் கொடுத்தாங்க.",
+   "facts": {
+    "worker_name": null,
+    "employer_name": null,
+    "work_type": "construction",
+    "work_place": null,
+    "period": null,
+    "days_worked": 22.0,
+    "daily_rate": 700.0,
+    "amount_paid": 11000.0,
+    "overtime_hours": null,
+    "deductions": null,
+    "deduction_reason": null
+   },
+   "expected_due": 4400,
+   "total_due": 4400.0,
    "pass": true,
-   "ms": 903,
+   "ms": 1397,
    "error": ""
   },
   {
-   "lang": "Telugu",
-   "input": "లక్ష్మి 500 రూపాయలు తిరిగి ఇచ్చింది",
-   "expected": [
-    [
-     "Lakshmi",
-     "payment",
-     500
-    ]
-   ],
-   "got": [
-    {
-     "customer": "Lakshmi",
-     "type": "payment",
-     "amount": 500.0,
-     "items": ""
-    }
-   ],
+   "lang": "Bengali (native digits, deduction)",
+   "story": "আমি ২৪ দিন ইটভাটায় কাজ করেছি, রোজ ৪৫০ টাকা বলেছিল, কিন্তু ৮০০০ টাকা দিয়েছে, আর ১০০০ টাকা কেটে নিয়েছে।",
+   "facts": {
+    "worker_name": null,
+    "employer_name": null,
+    "work_type": "brick kiln",
+    "work_place": null,
+    "period": null,
+    "days_worked": 24.0,
+    "daily_rate": 450.0,
+    "amount_paid": 8000.0,
+    "overtime_hours": null,
+    "deductions": 1000.0,
+    "deduction_reason": "advance or other"
+   },
+   "expected_due": 2800,
+   "total_due": 2800.0,
    "pass": true,
-   "ms": 860,
+   "ms": 1311,
    "error": ""
   },
   {
-   "lang": "Bengali (native digits)",
-   "input": "রহিম ২০০ টাকার চাল বাকিতে নিয়েছে",
-   "expected": [
-    [
-     "Rahim",
-     "credit",
-     200
-    ]
-   ],
-   "got": [
-    {
-     "customer": "Rahim",
-     "type": "credit",
-     "amount": 200.0,
-     "items": "Rice"
-    }
-   ],
+   "lang": "Marathi (2 h/day overtime)",
+   "story": "मी 25 दिवस शेतात काम केलं, रोज 400 ठरले होते, मालकाने फक्त 7000 दिले, आणि रोज 2 तास जास्त काम केलं.",
+   "facts": {
+    "worker_name": null,
+    "employer_name": "मालक",
+    "work_type": "farm",
+    "work_place": null,
+    "period": null,
+    "days_worked": 25.0,
+    "daily_rate": 400.0,
+    "amount_paid": 7000.0,
+    "overtime_hours": 50.0,
+    "deductions": null,
+    "deduction_reason": null
+   },
+   "expected_due": 8000,
+   "total_due": 8000.0,
    "pass": true,
-   "ms": 799,
+   "ms": 1472,
    "error": ""
   },
   {
-   "lang": "Marathi",
-   "input": "सुरेशने 180 रुपयांचे तेल उधार घेतले",
-   "expected": [
-    [
-     "Suresh",
-     "credit",
-     180
-    ]
-   ],
-   "got": [
-    {
-     "customer": "Suresh",
-     "type": "credit",
-     "amount": 180.0,
-     "items": "oil"
-    }
-   ],
+   "lang": "Telugu (monthly salary)",
+   "story": "నేను ఇంటి పనిమనిషిగా నెలకు 7800 జీతానికి పని చేశాను, 26 రోజులు పని చేశాను, కానీ 5000 మాత్రమే ఇచ్చారు.",
+   "facts": {
+    "worker_name": null,
+    "employer_name": null,
+    "work_type": "Domestic",
+    "work_place": null,
+    "period": null,
+    "days_worked": 26.0,
+    "daily_rate": 300.0,
+    "amount_paid": 5000.0,
+    "overtime_hours": null,
+    "deductions": null,
+    "deduction_reason": null
+   },
+   "expected_due": 2800,
+   "total_due": 2800.0,
    "pass": true,
-   "ms": 1028,
+   "ms": 1446,
    "error": ""
   },
   {
-   "lang": "Kannada",
-   "input": "ರವಿ 600 ರೂಪಾಯಿ ಬಾಕಿ ಹಣ ವಾಪಸ್ ಕೊಟ್ಟರು",
-   "expected": [
-    [
-     "Ravi",
-     "payment",
-     600
-    ]
-   ],
-   "got": [
-    {
-     "customer": "Ravi",
-     "type": "payment",
-     "amount": 600.0,
-     "items": ""
-    }
-   ],
+   "lang": "English (paid in full)",
+   "story": "I worked 10 days as a painter at 800 per day and the contractor paid me 8000.",
+   "facts": {
+    "worker_name": null,
+    "employer_name": "contractor",
+    "work_type": "painter",
+    "work_place": null,
+    "period": null,
+    "days_worked": 10.0,
+    "daily_rate": 800.0,
+    "amount_paid": 8000.0,
+    "overtime_hours": null,
+    "deductions": null,
+    "deduction_reason": null
+   },
+   "expected_due": 0,
+   "total_due": 0.0,
    "pass": true,
-   "ms": 858,
-   "error": ""
-  },
-  {
-   "lang": "Gujarati",
-   "input": "મહેશે 90 રૂપિયાની ખાંડ ઉધાર લીધી",
-   "expected": [
-    [
-     "Mahesh",
-     "credit",
-     90
-    ]
-   ],
-   "got": [
-    {
-     "customer": "Mahesh",
-     "type": "credit",
-     "amount": 90.0,
-     "items": "sugar"
-    }
-   ],
-   "pass": true,
-   "ms": 927,
-   "error": ""
-  },
-  {
-   "lang": "Malayalam",
-   "input": "അനിൽ 75 രൂപയുടെ പാൽ കടമായി വാങ്ങി",
-   "expected": [
-    [
-     "Anil",
-     "credit",
-     75
-    ]
-   ],
-   "got": [
-    {
-     "customer": "Anil",
-     "type": "credit",
-     "amount": 75.0,
-     "items": "milk"
-    }
-   ],
-   "pass": true,
-   "ms": 941,
-   "error": ""
-  },
-  {
-   "lang": "English",
-   "input": "Fatima took milk and bread for 120 on credit",
-   "expected": [
-    [
-     "Fatima",
-     "credit",
-     120
-    ]
-   ],
-   "got": [
-    {
-     "customer": "Fatima",
-     "type": "credit",
-     "amount": 120.0,
-     "items": "milk and bread"
-    }
-   ],
-   "pass": true,
-   "ms": 936,
-   "error": ""
-  },
-  {
-   "lang": "Not a ledger entry",
-   "input": "Aaj mausam bahut accha hai",
-   "expected": [],
-   "got": [],
-   "pass": true,
-   "ms": 684,
+   "ms": 1216,
    "error": ""
   }
  ],
- "voice": [
-  {
-   "lang": "Hindi voice",
-   "spoken": "रमेश ने दो सौ पचास रुपये का आटा उधार लिया",
-   "heard": "रमेश ने दो सौ पचास रुपये का आटा उधार लिया।",
-   "detected": "hi-IN",
-   "expected": [
-    [
-     "Ramesh",
-     "credit",
-     250
-    ]
-   ],
-   "got": [
-    {
-     "customer": "Ramesh",
-     "type": "credit",
-     "amount": 250.0,
-     "items": "aata"
-    }
-   ],
-   "pass": true,
-   "ms": 3344,
-   "error": ""
+ "voice": {
+  "spoken": "मैंने पंद्रह दिन काम किया, पाँच सौ रुपये रोज़ तय हुए थे, ठेकेदार ने सिर्फ पाँच हज़ार दिए।",
+  "heard": "मैंने पंद्रह दिन काम किया, पाँच सौ रुपये रोज़ तय हुए थे, ठेकेदार ने सिर्फ़ पाँच हज़ार दिए।",
+  "detected": "hi-IN",
+  "facts": {
+   "worker_name": null,
+   "employer_name": "ठेकेदार",
+   "work_type": null,
+   "work_place": null,
+   "period": "15 days",
+   "days_worked": 15.0,
+   "daily_rate": 500.0,
+   "amount_paid": 5000.0,
+   "overtime_hours": null,
+   "deductions": null,
+   "deduction_reason": null
   },
-  {
-   "lang": "Tamil voice",
-   "spoken": "குமார் முன்னூறு ரூபாய் திருப்பிக் கொடுத்தார்",
-   "heard": "குமார் முன்னூறு ரூபாய் திருப்பிக் கொடுத்தார்.",
-   "detected": "ta-IN",
-   "expected": [
-    [
-     "Kumar",
-     "payment",
-     300
-    ]
-   ],
-   "got": [
-    {
-     "customer": "Kumar",
-     "type": "payment",
-     "amount": 300.0,
-     "items": ""
-    }
-   ],
-   "pass": true,
-   "ms": 2677,
-   "error": ""
+  "total_due": 2500.0,
+  "expected_due": 2500,
+  "pass": true,
+  "ms": 4495
+ },
+ "vision": {
+  "page_text": "हाज़री कार्ड / ATTENDANCE CARD\nठेकेदार: रमेश कंस्ट्रक्शन, हडपसर साइट, पुणे\nमज़दूर का नाम: राजू यादव माह: अक्टूबर 2026\nमज़दूरी दर: ₹600 परतदिनि (8 घंटे)\n\n01/10 P\n02/10 P\n03/10 P +2 घंटे\n04/10 P +2 घंटे\n05/10 A\n06/10 P\n07/10 P\n08/10 P\n09/10 P\n10/10 P +2 घंटे\n11/10 P +2 घंटे\n12/10 A\n13/10 P\n14/10 P\n15/10 P\n16/10 P\n17/10 P +2 घंटे\n18/10 P +2 घंटे\n19/10 A\n20/10 P\n21/10 P\n22/10 P\n23/10 P\n24/10 P +2 घंटे\n25/10 P +2 घंटे\n26/10 A\n27/10 P\n28/10 P\n29/10 P +2 घंटे\n30/10 P +2 घंटे\n\nकुल हाज़री: 26 दनि\nओवरटाइम: 20 घंटे\nभुगतान मिला: ₹12,000 (नकद)\n\nहस्ताक्षर ठेकेदार: ___________ मज़दूर: अंगूठा",
+  "facts": {
+   "worker_name": "Raju Yadav",
+   "employer_name": "Ramesh Construction",
+   "work_type": "Construction",
+   "work_place": "Hadapsar site, Pune",
+   "period": "October 2026",
+   "days_worked": 26.0,
+   "daily_rate": 600.0,
+   "amount_paid": 12000.0,
+   "overtime_hours": 20.0,
+   "deductions": null,
+   "deduction_reason": null
   },
-  {
-   "lang": "Bengali voice",
-   "spoken": "রহিম একশো টাকার চিনি বাকিতে নিয়েছে",
-   "heard": "রহিম ₹100-র চিনি বাকিতে নিয়েছে।",
-   "detected": "bn-IN",
-   "expected": [
-    [
-     "Rahim",
-     "credit",
-     100
-    ]
-   ],
-   "got": [
-    {
-     "customer": "Rahim",
-     "type": "credit",
-     "amount": 100.0,
-     "items": "Sugar"
-    }
-   ],
-   "pass": true,
-   "ms": 3727,
-   "error": ""
-  }
- ],
- "reminders": [
-  {
-   "lang": "Bengali",
-   "text": "রমেশ বাবু, নমস্কার। আপনার গত সপ্তাহের আটা আর তেলের বিল ২৫০ টাকা বাকি আছে। সুবিধামতো সময় করে দোকানে এসে মিটিয়ে দেবেন। অনেক ধন্যবাদ।",
-   "native_script_ratio": 1.0,
-   "pass": true
-  },
-  {
-   "lang": "Telugu",
-   "text": "నమస్కారం రమేష్ గారు, నేను శర్మ కిరాణా స్టోర్ నుండి మాట్లాడుతున్నాను. మీరు తీసుకున్న 250 రూపాయల అటా మరియు ఆయిల్ కి సంబంధించిన చిన్న బ్యాలెన్స్ ఉంది. మీకు వీలైనప్పుడు దయచేసి చెల్లించగలరు. ధన్యవాదాలు.",
-   "native_script_ratio": 1.0,
-   "pass": true
-  },
-  {
-   "lang": "Marathi",
-   "text": "नमस्कार रमेश भाऊ! शर्मा किराणा स्टोअरमधून बोलतोय. मागच्या आठवड्यात घेतलेल्या 250 रुपयांच्या पिठाची आणि तेलाची बाकी होती. तुम्हाला वेळ मिळेल तेव्हा पेमेंट करून टाका. धन्यवाद!",
-   "native_script_ratio": 1.0,
-   "pass": true
-  },
-  {
-   "lang": "Kannada",
-   "text": "ನಮಸ್ಕಾರ ರಮೇಶ್ ಅವರೇ, ನಮ್ಮ ಶರ್ಮ ಕಿರಾಣಾ ಸ್ಟೋರ್‌ನಿಂದ ನಿಮ್ಮ ತಿಂಗಳ ಸಾಮಾನುಗಳ ಬಿಲ್ 250 ರೂಪಾಯಿ ಬಾಕಿ ಇದೆ. ಇದು ನೀವು ತಂದ ಹಿಟ್ಟು ಮತ್ತು ಎಣ್ಣೆಯದ್ದಾಗಿದೆ. ದಯವಿಟ್ಟು ಬಿಡುವು ಮಾಡಿಕೊಂಡು ಆದಷ್ಟು ಬೇಗ ಪಾವತಿಸಿ. ಧನ್ಯವಾದಗಳು!",
-   "native_script_ratio": 1.0,
-   "pass": true
-  }
- ],
+  "pass": true,
+  "ms": 5623
+ },
+ "claim": {
+  "explanation": "राजू जी, आपने अक्टूबर 2026 में 26 दिन काम किया और आपकी कुल कमाई ₹18600 बनी है। आपको अब तक सिर्फ ₹12000 मिले हैं, इसलिए अभी भी ₹6600 बकाया है। इसमें ₹15600 आपकी तय दिहाड़ी के हैं और ₹3000 ओवरटाइम के हैं, जो कानून के तहत दोगुने मिलते हैं। सबसे पहले आप अपने मालिक रमेश कंस्ट्रक्शन को यह पत्र देकर पैसे मांगें। अगर 7 दिन में पैसे नहीं मिलते, तो आप जिले के श्रम कार्यालय में शिकायत करें। मुफ्त कानूनी मदद के लिए आप NALSA हेल्पलाइन 15100 पर कॉल कर सकते हैं।",
+  "employer_letter": "सेवा में, रमेश कंस्ट्रक्शन,\n\nविषय: अक्टूबर 2026 के बकाया वेतन के भुगतान के संबंध में\n\nमहोदय, मैंने अक्टूबर 2026 में आपके यहाँ 26 दिन काम किया है। मेरी कुल कमाई ₹18600 थी, जिसमें से मुझे सिर्फ ₹12000 मिले हैं। इसलिए मेरा ₹6600 का वेतन बकाया है। इसमें ₹15600 मेरी 26 दिन की दिहाड़ी के हैं और ₹3000 ओवरटाइम के हैं, जो कानून के अनुसार दोगुने मिलते हैं। कृपया मेरा पूरा बकाया वेतन 7 दिन के अंदर दे दें।\n\nधन्यवाद,\nRaju Yadav\n[तारीख] [हस्ताक्षर]",
+  "complaint": "To,\nThe Inspector-cum-Facilitator / Assistant Labour Commissioner,\nDistrict Labour Office,\n[District Name]\n\nSubject: Complaint for non-payment of wages and overtime under the Code on Wages, 2019\n\nRespected Sir/Madam,\n\nI, Raju Yadav, am a daily-wage worker who worked at Ramesh Construction in [Work Place] during October 2026. I worked for 26 days at a daily rate of ₹600 and also worked 20 hours of overtime. However, my employer has only paid me ₹12000, leaving a balance of ₹6600 unpaid.\n\nWage Calculation:\n- Agreed wages: 26 days × ₹600 = ₹15600\n- Overtime: 20 h × ₹75/h × 2 = ₹3000\n- Total Earned: ₹18600\n- Amount Received: -₹12000\n- Amount Owed: ₹6600\n\nI request you to kindly direct the employer, Ramesh Construction, to pay my full pending wages of ₹6600 immediately. If the employer fails to pay, please take strict legal action against them as per the Code on Wages, 2019.\n\nDate: [Date]\nSignature: _____________________\nName: Raju Yadav\nContact: [Phone Number]",
+  "audio_bytes": 1318458,
+  "pass": true,
+  "ms": 9234
+ },
  "usage": {
-  "stt_calls": 3,
-  "chat_calls": 21,
-  "tts_calls": 3,
-  "tts_chars": 120,
+  "stt_calls": 1,
+  "chat_calls": 10,
+  "tts_calls": 2,
+  "tts_chars": 540,
+  "vision_pages": 1,
   "cache_hits": 0
  }
 }

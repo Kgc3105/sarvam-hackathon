@@ -1,43 +1,50 @@
-# Bolo Khata · बोलो खाता
+# Haq Hisaab · हक़ हिसाब
 
-**Speak your udhaar. We keep the khata and send polite reminders in your customer's language.**
+**For India's daily-wage workers: speak your work story in your own language, find out exactly how much you are owed, and get the letters to claim it.**
 
-A voice-first credit ledger for kirana shop owners, built on Sarvam AI.
+Built on Sarvam AI: Saaras v3 · Sarvam Vision · Sarvam-105B · Bulbul v3.
+
+## The problem
+
+Most of India's workforce is informal: construction labourers, farm hands, brick-kiln workers, loaders and domestic workers. Wage theft is routine. Contractors pay less than the promised rate, skip overtime, and make unexplained deductions. The worker usually cannot do the legal maths, cannot read the attendance register the contractor keeps, and cannot write a complaint in English. So the money is simply lost.
 
 ## One user · one problem · one flow
 
-- **User:** Ramesh-bhai, who runs a small kirana store. He speaks Hindi; his customers speak Hindi, Tamil, Bengali and other languages.
-- **Problem:** Udhaar (store credit) lives in a paper notebook. Entries get lost, totals are guessed, and asking a regular customer for money is awkward, especially in a language he doesn't write.
-- **Flow:**
-  1. **Input:** he taps the mic and says, in any Indian language or code-mixed speech, *"Ramesh ne 200 ka atta aur 50 ka tel udhaar liya, aur Sunita ne 300 wapas diye"*.
-  2. The khata updates instantly: Ramesh **+₹250** (atta, oil), Sunita **−₹300**, with running balances.
-  3. **Result:** he taps **🔊 Voice reminder** next to a customer, picks that customer's language, and gets a warm, respectful reminder as a **voice note** (plus text he can share on WhatsApp).
+**User:** Raju Yadav, a construction worker at a site in Pune. He speaks Hindi and signs with a thumbprint.
 
-## AI task → Sarvam API
+| Step | Input | What happens | Sarvam API |
+|---|---|---|---|
+| 1. Batao (tell) | Raju speaks: *"मैंने अक्टूबर में 26 दिन काम किया, ठेकेदार ने 600 रोज़ बोला था, पर सिर्फ 12000 दिए। 20 घंटे ओवरटाइम का कुछ नहीं दिया।"* | Speech → text in any of 22 Indian languages, language auto-detected | **Saaras v3** |
+| 1b. Evidence (optional) | Photo of his hajri (attendance) card or wage slip | Indic handwriting and print → text | **Sarvam Vision** (Document AI) |
+| 2. Hisaab (the maths) | — | Story / card → structured facts (days, promised rate, amount paid, overtime, deductions). Conflicts between the story and the card are flagged. | **Sarvam-105B** |
+| 2b. | Facts | **Plain arithmetic, not AI**: 26 × ₹600 + 20 h × ₹75 × 2 (overtime is double, Code on Wages 2019 s.14) − ₹12,000 = **₹6,600 owed**. Also flags minimum-wage violations and deductions. | none (on purpose) |
+| 3. Haq maango (claim) | Tap one button | Spoken explanation in his language, a polite-but-firm letter to the contractor, and a formal complaint to the district Labour Office | **Sarvam-105B** + **Bulbul v3** |
 
-| AI task | Sarvam API / model |
-|---|---|
-| Shopkeeper's spoken entry → text, auto-detecting the language | **Saaras v3** speech-to-text (`saaras:v3`, `language_code=unknown`) |
-| Free-form sentence (any language, number words like "do sau") → structured ledger entries (customer, credit/payment, amount, items) | **Sarvam-105B** chat completions (`sarvam-105b`) |
-| Polite reminder in the customer's language and native script | **Sarvam-105B** chat completions |
-| Reminder → natural voice note | **Bulbul v3** text-to-speech (`bulbul:v3`, speaker `priya`) |
+**Result:** Raju hears, in Hindi, that he is owed ₹6,600 and why, and gets a ready letter (Hindi) and complaint (English) to share on WhatsApp or print.
 
-## Tested live on Sarvam AI: 21/21 passed
+## Why it stands out
+
+- **Niche, high impact:** wage recovery for informal workers. No library idea targets this user.
+- **The AI never touches the money:** the LLM only extracts facts and writes text. Every rupee comes from deterministic, tested Python, and the model is instructed never to change a number.
+- **Evidence from paper:** Sarvam Vision reads the contractor's own Hindi attendance card, and the app flags it when the card and the worker's story disagree.
+- **Voice in, voice out:** usable by someone who cannot read.
+
+### Refined from the idea library (not a copy)
+
+- **#38 Freight-Invoice Reconciliation:** promised vs paid, flag the mismatch, draft a dispute letter in their language. Applied to a worker's wages instead of supplier invoices.
+- **#46 Grievance Drafter:** a voice complaint becomes a structured, cited administrative complaint (the Labour Office under the Code on Wages, 2019).
+- **#29 Scheme-to-Pocket:** interviewing informal and gig workers by voice in their language.
+
+## Tested live on Sarvam AI: 10/10 passed
 
 | Test | Result |
 |---|---|
-| Ledger parsing: Hinglish, Hindi, Tamil, Telugu, Bengali (native ২০০ digits), Marathi, Kannada, Gujarati, Malayalam, English; "dedh sau" / "dhai sau" number words; two customers in one sentence; a non-ledger sentence correctly ignored | **14/14** |
-| Real voice round-trip (Bulbul v3 speaks → Saaras v3 hears, auto-detects the language → Sarvam-105B parses) in Hindi, Tamil, Bengali | **3/3** |
-| Reminders written 100% in the customer's native script with the correct amount: Bengali, Telugu, Marathi, Kannada | **4/4** |
+| Work stories → facts → correct amount owed: Hindi, Hinglish ("saade paanch sau" = 550), Tamil, Bengali (native ২৪ digits + deduction), Marathi ("2 hours extra daily" → 50 h overtime), Telugu (monthly salary → daily rate), English (paid in full → ₹0) | **7/7** |
+| Real voice round-trip: Bulbul speaks → Saaras hears (detected `hi-IN`) → facts → ₹2,500 owed | **pass** |
+| Sarvam Vision reads [the attendance card](samples/attendance_card.jpg): worker, contractor, site, month, 26 days, ₹600/day, ₹12,000 paid, 20 h overtime | **pass** (~6–8 s) |
+| Hindi explanation + employer letter + Labour Office complaint all quote exactly ₹6,600, spoken by Bulbul | **pass** |
 
-Typical latency: about 1 s to parse a typed entry, about 3 s for a full voice round-trip. Full per-case results are in [eval/results.md](eval/results.md). Rerun with `python eval/run_eval.py` (it has a hard credit cap). Zero-credit unit tests: `python -m pytest -q tests`.
-
-## Refined from the idea library
-
-Not a copy of any one idea. It refines three library ideas for a user none of them targeted, the smallest business in India:
-- **#36 Dispatcher-in-Your-Pocket:** voice notes → structured events, applied here to a shop ledger.
-- **#15 / #24 Finance Ops / Accounts Payable:** ledger and reconciliation, shrunk from ERP scale down to a corner shop.
-- **#7 Sales Agent:** reminders and follow-ups, as a friendly voice note in the customer's own language.
+Full outputs, including the generated letters, are in [eval/results.md](eval/results.md). Rerun with `python eval/run_eval.py` (it has a hard credit cap).
 
 ## Run locally
 
@@ -47,31 +54,30 @@ cp .env.example .env        # then put your key in .env as SARVAM_API_KEY=...
 python app.py               # open http://localhost:8000
 ```
 
-**Zero-credit demo mode:** set `MOCK=1` in `.env`, or leave the key empty. The full UI then runs on canned responses and makes no API calls.
+**Zero-credit demo mode:** set `MOCK=1` in `.env`, or leave the key empty. The full UI runs on canned responses with no API calls. Every Sarvam response is also cached in memory, so repeating a demo step is free.
 
-**Credit saving:** reasoning is switched off for the short LLM tasks, and every Sarvam response is cached in memory, so repeating the same demo step costs nothing. `GET /api/status` shows call counts.
+## Deploy
 
-## Deploy (Render)
+**Vercel:** Import the GitHub repo at vercel.com → New Project. Vercel detects FastAPI from `app.py` + `requirements.txt`. Add the environment variable `SARVAM_API_KEY`, then Deploy.
 
-1. Push this repo to GitHub.
-2. On Render, choose **New → Blueprint** and pick the repo (it reads `render.yaml`).
-3. Set the `SARVAM_API_KEY` environment variable in the Render dashboard. Never commit it.
-4. Open the live URL on your phone. Browsers only allow the mic on HTTPS, which Render provides.
+**Render:** New → Blueprint → pick this repo (it uses `render.yaml`) → set `SARVAM_API_KEY`.
+
+Open the live HTTPS link on a phone: the mic and camera both work there.
 
 ## API
 
-- `POST /api/voice-entry` (multipart `audio`, ≤25 s): returns the transcript, detected language, parsed entries and a confirmation in the speaker's language
-- `POST /api/text-entry` `{text}`: same, but from typed text
-- `POST /api/reminder` `{customer, amount, items, language, shop}`: returns the reminder text and a base64 WAV voice note
-- `GET /api/status`: mode, models and API usage counters
+- `POST /api/story-voice` (multipart `audio`, ≤25 s) → transcript, detected language, facts
+- `POST /api/story-text` `{text}` → facts
+- `POST /api/evidence-photo` (multipart `image`, `language`) → text read by Sarvam Vision, facts
+- `POST /api/calculate` `{facts}` → line-by-line wage calculation, flags, total due (no AI)
+- `POST /api/claim` `{facts, language}` → spoken explanation (base64 WAV), employer letter, Labour Office complaint
+- `GET /api/status` → mode, models, API usage counters
 
-## 3-minute demo script
+## 3-minute demo
 
-1. Tap the mic and say in Hindi: *"Ramesh ne do sau ka atta aur pachaas ka tel udhaar liya."* The ledger shows Ramesh: Due ₹250.
-2. Tap the Tamil chip (*"Kumar 350 rupees ku arisi vaanginaar…"*). Kumar: Due ₹350. Different language, same khata.
-3. Say *"Sunita ne teen sau wapas diye"* to show a payment reducing a balance.
-4. Next to Ramesh, choose **Tamil** and tap **🔊 Voice reminder**. A Tamil voice note plays, ready to download or share.
+1. Tap 🎙️ and say (or tap the Hindi sample): *"26 din kaam kiya, 600 roz bola tha, sirf 12000 diye, 20 ghante overtime ka kuch nahi diya."* Step 2 fills in and shows **You are owed ₹6,600**, line by line.
+2. Tap **📷 Add card / slip** and choose `samples/attendance_card.jpg`. Sarvam Vision reads the Hindi card and the facts are confirmed "📷 from card".
+3. Type a state minimum wage of 700 and watch the minimum-wage violation appear, with the extra amount due.
+4. Tap **🔊 Explain to me & write my letters**. Raju hears the explanation in Hindi and gets the letter and the complaint. Switch the language to Tamil and run it again.
 
-## Ledger storage
-
-For the MVP the ledger is stored in the browser (`localStorage`). No customer data is kept on the server.
+Not legal advice. Free legal aid in India: NALSA helpline **15100**.
