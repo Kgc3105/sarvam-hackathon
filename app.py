@@ -42,6 +42,8 @@ STT_MODEL = "saaras:v3"
 CHAT_MODEL = "sarvam-105b"
 TTS_MODEL = "bulbul:v3"
 TTS_SPEAKER = os.getenv("TTS_SPEAKER", "shubh")
+TRANSLATE_MODEL = "sarvam-translate:v1"
+QUESTION_MODEL = "mayura:v1"
 DOC_JOB = f"{BASE}/doc-ai/v1/job"
 VISION_TERMINAL = {"completed", "partially_completed", "failed", "rejected"}
 
@@ -62,7 +64,8 @@ app = FastAPI(title="Haq Hisaab")
 PUBLIC = Path(__file__).parent / "public"
 
 _cache = {}
-usage = {"stt_calls": 0, "chat_calls": 0, "tts_calls": 0, "tts_chars": 0, "vision_pages": 0, "cache_hits": 0}
+usage = {"stt_calls": 0, "chat_calls": 0, "tts_calls": 0, "tts_chars": 0, "vision_pages": 0, "translate_calls": 0,
+         "cache_hits": 0}
 
 
 def _key(*parts):
@@ -247,6 +250,52 @@ def _vision_text(job_id):
     return _unzip_text(z.content)
 
 
+def _chunks(text, limit):
+    """Split on line breaks so each piece stays under the translate input limit."""
+    out, cur = [], ""
+    for line in text.split("\n"):
+        while len(line) > limit:
+            out.append(line[:limit])
+            line = line[limit:]
+        if cur and len(cur) + len(line) + 1 > limit:
+            out.append(cur)
+            cur = ""
+        cur = f"{cur}\n{line}" if cur else line
+    if cur:
+        out.append(cur)
+    return out
+
+
+def sarvam_translate(text, source, target, model=TRANSLATE_MODEL, mode=None):
+    """Sarvam Translate. sarvam-translate:v1 (formal, 2000 chars) for letters,
+    mayura:v1 (colloquial modes, 1000 chars) for short spoken questions."""
+    if not text.strip() or source == target:
+        return text
+    k = _key("translate", text, source, target, model, mode)
+    if (hit := _cached(k)) is not None:
+        return hit
+    if MOCK:
+        out = f"[{LANGUAGES.get(target, target)}] {text}"
+    else:
+        parts = []
+        for piece in _chunks(text, 1900 if model == TRANSLATE_MODEL else 950):
+            if not piece.strip():
+                parts.append(piece)
+                continue
+            body = {"input": piece, "source_language_code": source, "target_language_code": target, "model": model}
+            if mode:
+                body["mode"] = mode
+            r = _post(f"{BASE}/translate", "translate", headers={**HEADERS, "Content-Type": "application/json"},
+                      json=body, timeout=60)
+            if not r.ok:
+                _raise(r, "translate")
+            parts.append(r.json().get("translated_text", ""))
+            usage["translate_calls"] += 1
+        out = "\n".join(parts)
+    _cache[k] = out
+    return out
+
+
 def _silent_wav_b64():
     buf = io.BytesIO()
     with wave.open(buf, "wb") as w:
@@ -328,6 +377,7 @@ class Facts(BaseModel):
     deductions: Optional[float] = None
     deduction_reason: Optional[str] = None
     state_min_wage: Optional[float] = None  # entered by the user from their state's notification
+    evidence_sha256: Optional[str] = None   # fingerprint of the attendance-card photo, if one was added
 
 
 def calculate(f: Facts):
@@ -369,13 +419,14 @@ def calculate(f: Facts):
 CLAIM_SYSTEM = """You are a kind, plain-spoken labour-rights helper for Indian daily-wage workers. You are given the worker's facts and an
 already-computed wage calculation. NEVER recompute or change any number - use the numbers exactly as given.
 Reply with ONLY a JSON object, no markdown:
-{"explanation": "<spoken explanation for the worker in {LANG} (native script), 4-6 short simple sentences: how much they earned, how much they got, exactly how much is still owed and why (overtime is paid double by law), and the next step: first ask the employer with the letter, and if not paid, give the complaint to the district Labour Office; free legal help: NALSA helpline 15100. Warm, respectful, no jargon. Write rupee amounts as digits.>",
+{"explanation": "<spoken explanation for the worker in {LANG} (native script), 4-6 short simple sentences: how much they earned, how much they got, exactly how much is still owed and why (overtime is paid double by law), and the next step: first give the employer the letter (it is written in {EMP_LANG} so the employer can read it), and if not paid, give the complaint to the district Labour Office; free legal help: NALSA helpline 15100. Warm, respectful, no jargon. Write rupee amounts as digits.>",
  "employer_letter": "<short, polite but firm letter from the worker to the employer in {LANG} (native script), with a breakdown of the amount due, asking for payment within 7 days. Placeholders in [brackets] for anything unknown.>",
  "complaint": "<formal complaint in English to the Inspector-cum-Facilitator / Assistant Labour Commissioner of the district under the Code on Wages, 2019: subject line, worker and employer details (placeholders if unknown), facts, wage calculation table in plain text, relief sought, date and signature placeholders.>"}"""
 
 
-def write_claim(f: Facts, calc, lang):
+def write_claim(f: Facts, calc, lang, emp_lang=None):
     lang_name = LANGUAGES.get(lang, "Hindi")
+    emp_name = LANGUAGES.get(emp_lang or lang, lang_name)
     if MOCK:
         return {
             "explanation": f"आपने कुल ₹{calc['earned']:g} कमाए, आपको ₹{calc['paid']:g} मिले। आपका ₹{calc['total_due']:g} अभी बाकी है। "
@@ -385,11 +436,26 @@ def write_claim(f: Facts, calc, lang):
             "complaint": f"To: The Inspector-cum-Facilitator, [District]\nSubject: Non-payment of wages - Rs {calc['total_due']:g}\n...",
         }
     facts = f.model_dump()
-    user = (f"Language for explanation and employer letter: {lang_name}\n"
+    facts.pop("evidence_sha256", None)
+    user = (f"Worker's language (explanation): {lang_name}\nEmployer's language (letter): {emp_name}\n"
             f"Worker facts: {json.dumps(facts, ensure_ascii=False)}\n"
             f"Computed calculation (use exactly): {json.dumps(calc, ensure_ascii=False)}")
-    data = _json_from(sarvam_chat(CLAIM_SYSTEM.replace("{LANG}", lang_name), user, max_tokens=2500))
+    system = CLAIM_SYSTEM.replace("{LANG}", lang_name).replace("{EMP_LANG}", emp_name)
+    data = _json_from(sarvam_chat(system, user, max_tokens=2500))
     return {k: str(data.get(k, "")).strip() for k in ("explanation", "employer_letter", "complaint")}
+
+
+def evidence_seal(f: Facts, calc):
+    """Tamper-evident fingerprint of the claim (refines library idea #33 Record -> Claim -> Anchor).
+    Anyone holding the original photo and these facts can recompute it; any edit changes the code."""
+    payload = json.dumps({"facts": f.model_dump(), "total_due": calc["total_due"], "lines": calc["lines"]},
+                         sort_keys=True, ensure_ascii=False)
+    digest = hashlib.sha256(payload.encode()).hexdigest()
+    code = "HH-" + "-".join(digest[i:i + 4].upper() for i in (0, 4, 8))
+    note = (f"\n\nEvidence seal (tamper check): case code {code} (SHA-256 of the facts and calculation above)."
+            + (f"\nAttendance-card photo SHA-256: {f.evidence_sha256}. Recompute the SHA-256 of the original photo "
+               "to confirm it has not been altered." if f.evidence_sha256 else ""))
+    return {"code": code, "case_sha256": digest, "photo_sha256": f.evidence_sha256, "note": note}
 
 
 # ---------------------------------------------------------------- routes
@@ -400,7 +466,8 @@ def index():
 
 @app.get("/api/status")
 def status():
-    return {"mock": MOCK, "models": {"stt": STT_MODEL, "chat": CHAT_MODEL, "tts": TTS_MODEL, "vision": "sarvam-vision"},
+    return {"mock": MOCK, "models": {"stt": STT_MODEL, "chat": CHAT_MODEL, "tts": TTS_MODEL, "vision": "sarvam-vision",
+                                     "translate": TRANSLATE_MODEL, "questions": QUESTION_MODEL},
             "usage": usage, "languages": LANGUAGES, "national_floor_wage": NATIONAL_FLOOR_WAGE}
 
 
@@ -438,7 +505,8 @@ def evidence_photo(image: UploadFile = File(...), language: str = Form("hi-IN"))
     text = sarvam_vision(data, image.filename or "card.jpg", language if language in LANGUAGES else "hi-IN")
     if not text.strip():
         raise HTTPException(422, "Could not read any text in the photo - try a clearer photo")
-    return {"page_text": text[:4000], "facts": extract_facts(text, source="photo")}
+    return {"page_text": text[:4000], "facts": extract_facts(text, source="photo"),
+            "photo_sha256": hashlib.sha256(data).hexdigest()}
 
 
 @app.post("/api/calculate")
@@ -446,9 +514,112 @@ def api_calculate(f: Facts):
     return calculate(f)
 
 
+# ---- voice interview: ask the worker for whatever is still missing
+QUESTIONS = {
+    "days_worked": "How many days did you work in total?",
+    "daily_rate": "How much money per day were you promised?",
+    "amount_paid": "How much money have you received in total so far?",
+}
+
+
+class NextQuestionReq(BaseModel):
+    facts: Facts
+    language: str = "hi-IN"
+
+
+@app.post("/api/next-question")
+def next_question(body: NextQuestionReq):
+    calc = calculate(body.facts)
+    if not calc["missing"]:
+        return {"field": None, "remaining": 0}
+    field = calc["missing"][0]
+    lang = body.language if body.language in LANGUAGES else "hi-IN"
+    q = sarvam_translate(QUESTIONS[field], "en-IN", lang, model=QUESTION_MODEL, mode="modern-colloquial")
+    return {"field": field, "question": q, "question_en": QUESTIONS[field], "remaining": len(calc["missing"]),
+            "audio_b64": sarvam_tts(q, lang), "mime": "audio/wav"}
+
+
+ANSWER_SYSTEM = """A daily-wage worker answered ONE question, by voice, in any Indian language or code-mixed speech.
+Extract the single number that answers it. Reply with ONLY JSON: {"value": number|null}
+Convert number words ("saade paanch sau"=550, "barah hazaar"=12000, "dedh sau"=150) and native-script digits.
+If they say nothing / kuch nahi / zero, the value is 0. If the answer does not contain the number, use null."""
+
+
+def _parse_answer(field, question, answer_text):
+    if MOCK:
+        m = re.search(r"\d+(?:\.\d+)?", answer_text.replace(",", ""))
+        return float(m.group(0)) if m else None
+    raw = sarvam_chat(ANSWER_SYSTEM,
+                      f"Question ({field}): {question or QUESTIONS.get(field, field)}\nAnswer: {answer_text}",
+                      max_tokens=60)
+    v = _json_from(raw).get("value")
+    try:
+        v = float(v) if v is not None else None
+    except (TypeError, ValueError):
+        return None
+    return v if v is None or 0 <= v <= 10_000_000 else None
+
+
+@app.post("/api/answer")
+def answer(field: str = Form(...), question: str = Form(""), text: str = Form(""),
+           audio: Optional[UploadFile] = File(None)):
+    if field not in QUESTIONS:
+        raise HTTPException(400, "Unknown question")
+    stt = {"transcript": text, "language_code": None}
+    if audio is not None:
+        data = audio.file.read()
+        if not data or len(data) > 2_000_000:
+            raise HTTPException(400, "Please record a short answer")
+        stt = sarvam_stt(data, audio.filename or "answer.webm", audio.content_type or "audio/webm")
+    if not stt["transcript"].strip():
+        raise HTTPException(422, "Could not hear the answer - please try again")
+    return {**stt, "field": field, "value": _parse_answer(field, question, stt["transcript"])}
+
+
+# ---- follow-up questions ("what if the contractor refuses?")
+ASK_SYSTEM = """You are Haq Hisaab, a kind labour-rights helper for Indian daily-wage workers.
+Answer the worker's question in {LANG} (native script) in 2-4 short, simple, spoken-style sentences.
+Use the worker's facts and computed numbers exactly as given - never invent or change a number.
+General guidance on Indian labour law (Code on Wages 2019: overtime at double rate, wages due by the 7th of the next month,
+only lawful deductions, complaint to the district Labour Office / Inspector-cum-Facilitator) is fine. Be honest when unsure,
+and point to free legal aid (NALSA helpline 15100) for anything serious. Never encourage violence or anything illegal.
+Write only the answer text."""
+
+
+@app.post("/api/ask")
+def ask(text: str = Form(""), facts_json: str = Form("{}"), language: str = Form("hi-IN"),
+        audio: Optional[UploadFile] = File(None)):
+    lang = language if language in LANGUAGES else "hi-IN"
+    question = text.strip()
+    if audio is not None:
+        data = audio.file.read()
+        if not data or len(data) > 2_000_000:
+            raise HTTPException(400, "Please record a short question")
+        question = sarvam_stt(data, audio.filename or "q.webm", audio.content_type or "audio/webm")["transcript"]
+    if not question.strip():
+        raise HTTPException(400, "Please ask a question")
+    try:
+        facts = Facts(**json.loads(facts_json or "{}"))
+    except (ValueError, TypeError):
+        facts = Facts()
+    calc = calculate(facts)
+    if MOCK:
+        reply = f"अगर ठेकेदार मना करे, तो ज़िला श्रम कार्यालय में शिकायत दें। आपका ₹{calc['total_due']:g} बाकी है। मुफ़्त मदद: 15100।"
+    else:
+        ctx = {"facts": {k: v for k, v in facts.model_dump().items() if v is not None and k != "evidence_sha256"},
+               "total_due": calc["total_due"], "lines": calc["lines"], "flags": calc["flags"]}
+        reply = sarvam_chat(ASK_SYSTEM.replace("{LANG}", LANGUAGES[lang]),
+                            f"Worker's case: {json.dumps(ctx, ensure_ascii=False)}\n\nQuestion: {question[:600]}",
+                            max_tokens=700).strip()
+    return {"question": question, "answer": reply, "language": lang,
+            "audio_b64": sarvam_tts(reply, lang) if reply else None, "mime": "audio/wav"}
+
+
+# ---- claim: explanation (worker's language) + letter (employer's language) + complaint + evidence seal
 class ClaimReq(BaseModel):
     facts: Facts
     language: str = "hi-IN"
+    employer_language: Optional[str] = None
     speak: bool = True
 
 
@@ -458,9 +629,33 @@ def claim(body: ClaimReq):
     if not calc["complete"]:
         raise HTTPException(400, "Please fill: " + ", ".join(m.replace("_", " ") for m in calc["missing"]))
     lang = body.language if body.language in LANGUAGES else "hi-IN"
-    out = write_claim(body.facts, calc, lang)
+    emp_lang = body.employer_language if body.employer_language in LANGUAGES else lang
+    out = write_claim(body.facts, calc, lang, emp_lang)
+    # Migrant workers: the letter is in the employer's language, so give the worker a copy they can read.
+    # The model writes the letter in the worker's language; Sarvam Translate puts it into the employer's
+    # language, and the worker keeps the original so they know exactly what they are sending.
+    out["employer_letter_in_my_language"] = None
+    if emp_lang != lang and out["employer_letter"]:
+        out["employer_letter_in_my_language"] = out["employer_letter"]
+        out["employer_letter"] = sarvam_translate(out["employer_letter"], lang, emp_lang)
+    seal = evidence_seal(body.facts, calc)
+    out["complaint"] = out["complaint"].rstrip() + seal["note"]
     audio = sarvam_tts(out["explanation"], lang) if body.speak and out["explanation"] else None
-    return {**out, "calc": calc, "language": lang, "audio_b64": audio, "mime": "audio/wav"}
+    return {**out, "calc": calc, "language": lang, "employer_language": emp_lang, "seal": seal,
+            "audio_b64": audio, "mime": "audio/wav"}
+
+
+# ---- installable app (PWA) files; on Vercel the CDN serves public/ directly
+@app.get("/manifest.webmanifest")
+def manifest():
+    return FileResponse(PUBLIC / "manifest.webmanifest", media_type="application/manifest+json")
+
+
+@app.get("/icon-{size}.png")
+def icon(size: int):
+    if size not in (192, 512):
+        raise HTTPException(404)
+    return FileResponse(PUBLIC / f"icon-{size}.png", media_type="image/png")
 
 
 if __name__ == "__main__":

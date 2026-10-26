@@ -1,0 +1,13 @@
+{
+  "name": "Haq Hisaab · हक़ हिसाब",
+  "short_name": "Haq Hisaab",
+  "description": "Speak your work story, find out exactly what you are owed, and get the letters to claim it.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f4ef",
+  "theme_color": "#1f2a5a",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

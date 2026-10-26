@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Haq Hisaab</title>
+<meta name="description" content="Speak your work story in your language, find out exactly how much you are owed, and get the letters to claim it.">
+<meta name="theme-color" content="#1f2a5a">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -74,6 +79,19 @@
   .err { color: var(--owed); font-size: 13px; }
   .muted { color: var(--muted); font-size: 12px; }
   footer { margin-top: 24px; color: var(--muted); font-size: 12px; text-align: center; }
+  .qbox { display: none; margin-bottom: 12px; padding: 12px; border-radius: 12px; border: 2px solid var(--brand); background: var(--soft); }
+  .qbox .q { font-size: 16px; font-weight: 600; margin: 4px 0 8px; }
+  .qbox audio { width: 100%; height: 36px; }
+  .mini { width: 52px; height: 52px; border-radius: 50%; border: none; cursor: pointer; font-size: 22px; background: var(--brand); color: var(--brand-ink); flex: 0 0 auto; }
+  .mini.rec { animation: pulse 1.1s infinite; background: var(--owed); }
+  .seal { display: inline-block; margin-top: 10px; font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--ok); color: var(--ok); }
+  .qa { margin-top: 10px; font-size: 14px; }
+  .qa .you { color: var(--muted); font-size: 13px; }
+  .qa .ans { padding: 10px; border-radius: 10px; background: var(--soft); margin-top: 4px; line-height: 1.5; }
+  .qa audio { width: 100%; height: 36px; margin-top: 6px; }
+  .askrow { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+  .askrow input { flex: 1; }
+  hr.sep { border: none; border-top: 1px solid var(--line); margin: 16px 0 12px; }
 </style>
 </head>
 <body>
@@ -96,11 +114,12 @@
         <label class="btn ghost" style="text-align:center;flex:1">📷 Add card / slip<input id="photo" type="file" accept="image/*" capture="environment" hidden></label></div>
       <div class="chips" id="chips"></div>
       <div id="heard" class="heard"></div>
-      <div class="flow"><span>🎙️ Saaras v3</span><span>📷 Sarvam Vision</span><span>🧠 Sarvam-105B</span><span>🔊 Bulbul v3</span></div>
+      <div class="flow"><span>🎙️ Saaras v3</span><span>📷 Sarvam Vision</span><span>🧠 Sarvam-105B</span><span>🌐 Sarvam Translate</span><span>🔊 Bulbul v3</span></div>
     </section>
 
     <section class="card">
       <h2>2 · Hisaab: the facts and the maths</h2>
+      <div id="qbox" class="qbox"></div>
       <div class="fields" id="fields"></div>
       <div id="owed" class="owed"></div>
       <p class="muted">The maths is plain arithmetic, not AI: overtime is paid at 2× (Code on Wages 2019, s.14). Edit any number to recalculate.</p>
@@ -108,10 +127,18 @@
 
     <section class="card">
       <h2>3 · Haq maango: claim it</h2>
-      <label class="muted">Your language</label>
-      <select id="lang"></select>
+      <div class="fields">
+        <label>Your language<select id="lang"></select></label>
+        <label>Employer's language<select id="emplang"></select></label>
+      </div>
       <div class="row"><button id="claim" class="btn brand big">🔊 Explain to me &amp; write my letters</button></div>
       <div id="out" class="out"></div>
+      <hr class="sep">
+      <h2 style="margin-bottom:4px">💬 Ask anything</h2>
+      <div class="muted">e.g. "Agar thekedar mana kar de to?" or "Can he cut money for tools?"</div>
+      <div class="askrow"><button id="askmic" class="mini" title="Ask by voice">🎙️</button>
+        <input id="asktxt" placeholder="…or type your question"><button id="asksend" class="btn">Ask</button></div>
+      <div id="qa" class="qa"></div>
       <p class="muted" style="margin-top:12px">Not legal advice. Free legal aid: NALSA helpline <b>15100</b>.</p>
     </section>
   </div>
@@ -197,8 +224,7 @@ async function sendText(text) {
   busy(true, 'Sarvam-105B is reading your story…');
   try {
     const j = await api('/api/story-text', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) });
-    showHeard(`<b>Your story:</b> ${esc(j.transcript)}`); facts = {}; notes = {}; mergeFacts(j.facts, false); clearOut();
-    guessLangFromScript(text);
+    showHeard(`<b>Your story:</b> ${esc(j.transcript)}`); facts = {}; notes = {}; guessLangFromScript(text); mergeFacts(j.facts, false); clearOut(); askNext();
   } catch (e) { showHeard(`<span class="err">⚠️ ${esc(e.message)}</span>`); }
   busy(false, 'Check the numbers in step 2, then claim it in step 3');
 }
@@ -209,33 +235,74 @@ function guessLangFromScript(t) {
   for (const ch of t) { const c = ch.codePointAt(0); const r = ranges.find(([, a, b]) => c >= a && c <= b); if (r) { setLang(r[0]); return; } }
 }
 
-// ---------- voice
-let rec = null, chunks = [], stopTimer = null;
-async function toggleMic() {
-  if (rec && rec.state === 'recording') { rec.stop(); return; }
+// ---------- voice: one recorder helper for the story, the answers and the questions
+let active = null;
+async function recordToggle(btn, onBlob, maxMs = 25000) {
+  if (active && active.btn === btn && active.rec.state === 'recording') { active.rec.stop(); return; }
+  if (active) return;
   if (!window.MediaRecorder || !navigator.mediaDevices) { showHeard('<span class="err">⚠️ Recording is not supported here. Please type instead.</span>'); return; }
   let stream;
   try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
   catch { showHeard('<span class="err">⚠️ Microphone blocked. Please type instead.</span>'); return; }
-  chunks = [];
+  const chunks = [];
   const mime = ['audio/webm', 'audio/mp4', 'audio/ogg'].find(m => MediaRecorder.isTypeSupported(m)) || '';
-  rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+  const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+  const timer = setTimeout(() => rec.state === 'recording' && rec.stop(), maxMs);
+  active = { btn, rec };
   rec.ondataavailable = e => e.data.size && chunks.push(e.data);
   rec.onstop = async () => {
-    clearTimeout(stopTimer); stream.getTracks().forEach(t => t.stop()); $('#mic').classList.remove('rec');
-    busy(true, 'Saaras is listening… Sarvam-105B is working out the facts');
+    clearTimeout(timer); stream.getTracks().forEach(t => t.stop()); btn.classList.remove('rec'); active = null;
     const type = (rec.mimeType || 'audio/webm').split(';')[0];
     const ext = type.includes('mp4') ? 'mp4' : type.includes('ogg') ? 'ogg' : 'webm';
-    const fd = new FormData(); fd.append('audio', new Blob(chunks, { type }), 'story.' + ext);
+    await onBlob(new Blob(chunks, { type }), 'rec.' + ext);
+  };
+  rec.start(); btn.classList.add('rec');
+}
+
+function storyMic() {
+  recordToggle($('#mic'), async (blob, name) => {
+    busy(true, 'Saaras is listening… Sarvam-105B is working out the facts');
+    const fd = new FormData(); fd.append('audio', blob, name);
     try {
       const j = await api('/api/story-voice', { method: 'POST', body: fd });
       showHeard(`<b>Heard</b> [${esc(LANGS[j.language_code] || j.language_code)}]: ${esc(j.transcript)}`);
-      setLang(j.language_code); facts = {}; notes = {}; mergeFacts(j.facts, false); clearOut();
+      setLang(j.language_code); facts = {}; notes = {}; mergeFacts(j.facts, false); clearOut(); askNext();
     } catch (e) { showHeard(`<span class="err">⚠️ ${esc(e.message)}</span>`); }
     busy(false, 'Check the numbers in step 2, then claim it in step 3');
-  };
-  rec.start(); $('#mic').classList.add('rec'); $('#hint').textContent = 'Recording… tap again to stop (max 25s)';
-  stopTimer = setTimeout(() => rec.state === 'recording' && rec.stop(), 25000);
+  });
+  if (active) $('#hint').textContent = 'Recording… tap again to stop (max 25s)';
+}
+
+// ---------- voice interview: Haq Hisaab asks, out loud, for anything still missing
+let pendingQ = null;
+async function askNext() {
+  await recalc();
+  const box = $('#qbox');
+  if (!lastCalc || !lastCalc.missing.length) { box.style.display = 'none'; pendingQ = null; return; }
+  box.style.display = 'block';
+  box.innerHTML = '<span class="muted">🔊 Preparing a question…</span>';
+  try {
+    pendingQ = await api('/api/next-question', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ facts, language: $('#lang').value }) });
+    if (!pendingQ.field) { box.style.display = 'none'; return; }
+    box.innerHTML = `<div class="muted">Haq Hisaab asks (${pendingQ.remaining} left):</div>
+      <div class="q">${esc(pendingQ.question)}</div>
+      <audio controls autoplay src="data:${pendingQ.mime};base64,${pendingQ.audio_b64}"></audio>
+      <div class="askrow"><button id="ansmic" class="mini" title="Answer by voice">🎙️</button>
+        <input id="anstxt" inputmode="decimal" placeholder="…or type the answer"><button id="anssend" class="btn">OK</button></div>
+      <div id="ansmsg" class="muted"></div>`;
+  } catch (e) { box.innerHTML = `<span class="err">⚠️ ${esc(e.message)}</span>`; }
+}
+async function sendAnswer(blob, name, text) {
+  if (!pendingQ) return;
+  $('#ansmsg').textContent = 'Listening…';
+  const fd = new FormData(); fd.append('field', pendingQ.field); fd.append('question', pendingQ.question_en);
+  if (blob) fd.append('audio', blob, name); else fd.append('text', text || '');
+  try {
+    const j = await api('/api/answer', { method: 'POST', body: fd });
+    if (j.value === null || j.value === undefined) { $('#ansmsg').textContent = `Heard “${j.transcript}”, but no number. Please try again.`; return; }
+    facts[pendingQ.field] = j.value; delete notes[pendingQ.field]; renderFields(); clearOut(); askNext();
+  } catch (e) { $('#ansmsg').textContent = '⚠️ ' + e.message; }
 }
 
 // ---------- photo evidence (resized in the browser to keep uploads small)
@@ -254,8 +321,9 @@ async function sendPhoto(file) {
   try {
     const fd = new FormData(); fd.append('image', await shrink(file), 'card.jpg'); fd.append('language', $('#lang').value);
     const j = await api('/api/evidence-photo', { method: 'POST', body: fd });
-    showHeard(`<b>📷 Card read by Sarvam Vision:</b><pre class="letter" style="max-height:120px">${esc(j.page_text)}</pre>`);
-    mergeFacts(j.facts, true); clearOut();
+    showHeard(`<b>📷 Card read by Sarvam Vision</b> <span class="seal">🔒 photo sealed ${esc(j.photo_sha256.slice(0, 12))}…</span>
+      <pre class="letter" style="max-height:120px">${esc(j.page_text)}</pre>`);
+    mergeFacts(j.facts, true); facts.evidence_sha256 = j.photo_sha256; clearOut(); askNext();
   } catch (e) { showHeard(`<span class="err">⚠️ ${esc(e.message)}</span>`); }
   $('#photo').value = '';
   busy(false, 'Card added as evidence. Check step 2.');
@@ -264,18 +332,22 @@ async function sendPhoto(file) {
 // ---------- claim
 function clearOut() { $('#out').style.display = 'none'; outData = null; }
 async function claim() {
-  if (!lastCalc || lastCalc.missing.length) { await recalc(); if (!lastCalc || lastCalc.missing.length) { renderOwed(lastCalc); return; } }
+  if (!lastCalc || lastCalc.missing.length) { await recalc(); if (!lastCalc || lastCalc.missing.length) { renderOwed(lastCalc); askNext(); return; } }
   $('#claim').disabled = true; $('#claim').textContent = 'Writing your explanation and letters…';
   try {
     outData = await api('/api/claim', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ facts, language: $('#lang').value, speak: true }) });
+      body: JSON.stringify({ facts, language: $('#lang').value, employer_language: $('#emplang').value || null, speak: true }) });
     const src = outData.audio_b64 ? 'data:' + outData.mime + ';base64,' + outData.audio_b64 : '';
+    const migrant = !!outData.employer_letter_in_my_language;
     $('#out').style.display = 'block';
     $('#out').innerHTML = `${src ? `<audio controls autoplay src="${src}"></audio>` : ''}
       <div class="explain">${esc(outData.explanation)}</div>
-      <div class="tabs"><button class="btn ghost on" data-tab="employer_letter">✉️ Letter to employer</button><button class="btn ghost" data-tab="complaint">🏛️ Labour Office complaint</button></div>
+      <div class="tabs"><button class="btn ghost on" data-tab="employer_letter">✉️ Letter${migrant ? ' (' + esc(LANGS[outData.employer_language]) + ')' : ' to employer'}</button>
+        ${migrant ? `<button class="btn ghost" data-tab="employer_letter_in_my_language">📖 Letter in ${esc(LANGS[outData.language])}</button>` : ''}
+        <button class="btn ghost" data-tab="complaint">🏛️ Labour Office complaint</button></div>
       <pre class="letter" id="letter"></pre>
-      <div class="links"><a id="copy">📋 Copy</a><a id="dl">⬇ Download</a><a id="wa" target="_blank" rel="noopener">WhatsApp</a></div>`;
+      <div class="links"><a id="copy">📋 Copy</a><a id="dl">⬇ Download</a><a id="wa" target="_blank" rel="noopener">WhatsApp</a></div>
+      <span class="seal" title="SHA-256 of the facts and calculation; printed on the complaint">🔒 Evidence seal ${esc(outData.seal.code)}</span>`;
     showTab('employer_letter');
   } catch (e) { $('#out').style.display = 'block'; $('#out').innerHTML = `<span class="err">⚠️ ${esc(e.message)}</span>`; }
   $('#claim').disabled = false; $('#claim').textContent = '🔊 Explain to me & write my letters';
@@ -289,17 +361,39 @@ function showTab(k) {
   $('#copy').onclick = () => navigator.clipboard && navigator.clipboard.writeText(t).then(() => { $('#copy').textContent = '✅ Copied'; setTimeout(() => $('#copy').textContent = '📋 Copy', 1500); });
 }
 
+// ---------- ask anything (voice or text) -> spoken answer grounded in the worker's own numbers
+async function askQuestion(blob, name, text) {
+  if (!blob && !(text || '').trim()) return;
+  $('#qa').innerHTML = '<span class="muted">Thinking…</span>';
+  const fd = new FormData(); fd.append('facts_json', JSON.stringify(facts)); fd.append('language', $('#lang').value);
+  if (blob) fd.append('audio', blob, name); else fd.append('text', text);
+  try {
+    const j = await api('/api/ask', { method: 'POST', body: fd });
+    $('#qa').innerHTML = `<div class="you">You asked: ${esc(j.question)}</div><div class="ans">${esc(j.answer)}</div>
+      ${j.audio_b64 ? `<audio controls autoplay src="data:${j.mime};base64,${j.audio_b64}"></audio>` : ''}`;
+    $('#asktxt').value = '';
+  } catch (e) { $('#qa').innerHTML = `<span class="err">⚠️ ${esc(e.message)}</span>`; }
+}
+
 // ---------- wiring
 $('#fields').addEventListener('input', e => {
   const k = e.target.dataset.k; if (!k) return;
   const v = e.target.value; facts[k] = e.target.type === 'number' ? (v === '' ? null : Number(v)) : (v || null);
   delete notes[k]; clearTimeout(calcTimer); calcTimer = setTimeout(recalc, 250); clearOut();
 });
+$('#qbox').addEventListener('click', e => {
+  if (e.target.id === 'ansmic') recordToggle(e.target, (b, n) => sendAnswer(b, n), 12000);
+  if (e.target.id === 'anssend') sendAnswer(null, null, $('#anstxt').value);
+});
+$('#qbox').addEventListener('keydown', e => { if (e.target.id === 'anstxt' && e.key === 'Enter') sendAnswer(null, null, e.target.value); });
 $('#out').addEventListener('click', e => { const k = e.target.dataset.tab; if (k) showTab(k); });
-$('#mic').addEventListener('click', toggleMic);
+$('#mic').addEventListener('click', storyMic);
 $('#send').addEventListener('click', () => sendText($('#txt').value));
 $('#photo').addEventListener('change', e => sendPhoto(e.target.files[0]));
 $('#claim').addEventListener('click', claim);
+$('#askmic').addEventListener('click', () => recordToggle($('#askmic'), (b, n) => askQuestion(b, n), 15000));
+$('#asksend').addEventListener('click', () => askQuestion(null, null, $('#asktxt').value));
+$('#asktxt').addEventListener('keydown', e => e.key === 'Enter' && askQuestion(null, null, e.target.value));
 $('#chips').innerHTML = SAMPLES.map(s => `<button class="chip">${esc(s)}</button>`).join('');
 $('#chips').addEventListener('click', e => { if (e.target.classList.contains('chip')) { $('#txt').value = e.target.textContent; sendText(e.target.textContent); } });
 
@@ -309,7 +403,9 @@ $('#chips').addEventListener('click', e => { if (e.target.classList.contains('ch
     const s = await api('/api/status'); LANGS = s.languages;
     $('#mode').textContent = s.mock ? 'DEMO MODE (no API calls)' : 'LIVE · Sarvam AI'; $('#mode').className = 'badge' + (s.mock ? '' : ' live');
   } catch { $('#mode').textContent = 'server offline'; }
-  $('#lang').innerHTML = Object.entries(LANGS).map(([c, n]) => `<option value="${c}">${esc(n)}</option>`).join('');
+  const opts = Object.entries(LANGS).map(([c, n]) => `<option value="${c}">${esc(n)}</option>`).join('');
+  $('#lang').innerHTML = opts;
+  $('#emplang').innerHTML = '<option value="">Same as mine</option>' + opts;
 })();
 </script>
 </body>

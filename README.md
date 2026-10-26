@@ -2,7 +2,7 @@
 
 **For India's daily-wage workers: speak your work story in your own language, find out exactly how much you are owed, and get the letters to claim it.**
 
-Built on Sarvam AI: Saaras v3 · Sarvam Vision · Sarvam-105B · Bulbul v3.
+Built on 5 Sarvam AI models: Saaras v3 · Sarvam Vision · Sarvam-105B · Sarvam Translate · Bulbul v3.
 
 ## The problem
 
@@ -18,9 +18,18 @@ Most of India's workforce is informal: construction labourers, farm hands, brick
 | 1b. Evidence (optional) | Photo of his hajri (attendance) card or wage slip | Indic handwriting and print → text | **Sarvam Vision** (Document AI) |
 | 2. Hisaab (the maths) | — | Story / card → structured facts (days, promised rate, amount paid, overtime, deductions). Conflicts between the story and the card are flagged. | **Sarvam-105B** |
 | 2b. | Facts | **Plain arithmetic, not AI**: 26 × ₹600 + 20 h × ₹75 × 2 (overtime is double, Code on Wages 2019 s.14) − ₹12,000 = **₹6,600 owed**. Also flags minimum-wage violations and deductions. | none (on purpose) |
-| 3. Haq maango (claim) | Tap one button | Spoken explanation in his language, a polite-but-firm letter to the contractor, and a formal complaint to the district Labour Office | **Sarvam-105B** + **Bulbul v3** |
+| 2c. Voice interview | Spoken answers | Anything missing is asked out loud in his language and his spoken answer fills it in | **Sarvam Translate** + **Bulbul v3** + **Saaras v3** + **Sarvam-105B** |
+| 3. Haq maango (claim) | Tap one button | Spoken explanation in his language, a letter to the contractor (in the contractor's language if different), a formal Labour Office complaint with an evidence seal | **Sarvam-105B** + **Sarvam Translate** + **Bulbul v3** |
 
 **Result:** Raju hears, in Hindi, that he is owed ₹6,600 and why, and gets a ready letter (Hindi) and complaint (English) to share on WhatsApp or print.
+
+## What's new: it talks like a helper, not a form
+
+- **🗣️ Voice interview:** if the story leaves out something (e.g. how much was paid), Haq Hisaab **asks out loud in the worker's language** (Sarvam Translate `mayura:v1` colloquial + Bulbul) and **listens to the spoken answer** (Saaras + Sarvam-105B: "সাড়ে চারশো" → 450, "barah hazaar" → 12000, "kuch nahi mila" → 0). No typing needed at any step.
+- **🌐 Migrant-worker mode:** a Bengali worker on a Marathi contractor's site hears the explanation in Bengali, the letter goes to the contractor in **Marathi** (Sarvam Translate `sarvam-translate:v1`), and the worker keeps a Bengali copy so they know exactly what they are sending.
+- **💬 Ask anything:** "Agar thekedar mana kar de to?" gets a short spoken answer grounded in the worker's own numbers.
+- **🔒 Evidence seal:** the attendance-card photo and the claim are fingerprinted with SHA-256, and the case code is printed on the Labour Office complaint, so any later edit is detectable. This refines library idea #33 Record → Claim → Anchor.
+- **📱 Installable:** add it to the phone's home screen like an app.
 
 ## Why it stands out
 
@@ -71,7 +80,10 @@ Open the live HTTPS link on a phone: the mic and camera both work there.
 - `POST /api/story-text` `{text}` → facts
 - `POST /api/evidence-photo` (multipart `image`, `language`) → text read by Sarvam Vision, facts
 - `POST /api/calculate` `{facts}` → line-by-line wage calculation, flags, total due (no AI)
-- `POST /api/claim` `{facts, language}` → spoken explanation (base64 WAV), employer letter, Labour Office complaint
+- `POST /api/claim` `{facts, language, employer_language}` → spoken explanation (base64 WAV), employer letter, Labour Office complaint
+- `POST /api/next-question` `{facts, language}` → spoken question for the next missing fact
+- `POST /api/answer` (multipart `field`, `audio` or `text`) → the number the worker said
+- `POST /api/ask` (multipart `audio` or `text`, `facts_json`, `language`) → spoken answer to a follow-up question
 - `GET /api/status` → mode, models, API usage counters
 
 ## 3-minute demo
