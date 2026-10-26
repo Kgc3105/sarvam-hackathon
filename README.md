@@ -22,6 +22,16 @@ A voice-first credit ledger for kirana shop owners, built on Sarvam AI.
 | Polite reminder in the customer's language and native script | **Sarvam-105B** chat completions |
 | Reminder → natural voice note | **Bulbul v3** text-to-speech (`bulbul:v3`, speaker `priya`) |
 
+## Tested live on Sarvam AI: 21/21 passed
+
+| Test | Result |
+|---|---|
+| Ledger parsing: Hinglish, Hindi, Tamil, Telugu, Bengali (native ২০০ digits), Marathi, Kannada, Gujarati, Malayalam, English; "dedh sau" / "dhai sau" number words; two customers in one sentence; a non-ledger sentence correctly ignored | **14/14** |
+| Real voice round-trip (Bulbul v3 speaks → Saaras v3 hears, auto-detects the language → Sarvam-105B parses) in Hindi, Tamil, Bengali | **3/3** |
+| Reminders written 100% in the customer's native script with the correct amount: Bengali, Telugu, Marathi, Kannada | **4/4** |
+
+Typical latency: about 1 s to parse a typed entry, about 3 s for a full voice round-trip. Full per-case results are in [eval/results.md](eval/results.md). Rerun with `python eval/run_eval.py` (it has a hard credit cap). Zero-credit unit tests: `python -m pytest -q tests`.
+
 ## Refined from the idea library
 
 Not a copy of any one idea. It refines three library ideas for a user none of them targeted, the smallest business in India:
